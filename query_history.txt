@@ -1,0 +1,91 @@
+Query: list all the files in the directory.
+Response: The `ls` command is the most appropriate for listing files in a directory. Simply typing `ls` will list the files in the current directory. You can also use `ls <directory_name>` to list files in a specific directory. `dir` and `vdir` are similar to `ls`.
+
+----------------------------------------
+Query: change directory
+Response: The primary command to change directories in UNIX is `cd`.
+
+*   **`cd`**: Followed by the directory path, it changes the current working directory. For example, `cd /home/user/documents` will change the directory to `/home/user/documents`.  If used without any path, `cd` will take you to your home directory.
+
+While not directly related to *changing* directories, `pwd` is useful for *knowing* the current directory:
+
+*   **`pwd`**: Prints the absolute path of the current working directory.
+
+----------------------------------------
+Query: make a folder in the given directory.
+Response: 
+Query: make a folder in the given directory.
+Command: mkdir
+Example Usage: mkdir new_folder or mkdir /path/to/directory/new_folder
+Two-Line Description: The mkdir command creates new directories. It allows you to specify the directory name and, optionally, its location.
+Optional Arguments or Flags:
+-p, --parents: Create parent directories as needed.
+-m, --mode=MODE: Set the file mode (permissions) of the new directory.
+-v, --verbose: Print a message for each created directory.
+
+
+
+----------------------------------------
+Query: list all the files in the directory
+Response: 
+[1;34mQuery:[0m list all the files in the directory
+[1;32mCommand:[0m ls
+[1;36mExample Usage:[0m ls -l
+[1;33mTwo-Line Description:[0m The ls command lists directory contents. It can show file names, sizes, modification dates, and permissions.
+[1;35mOptional Arguments or Flags:[0m
+-a:  Lists all files, including hidden files (those starting with a dot).
+-l:  Provides a long listing format, with detailed information about each file.
+-t: Sorts the listing by modification time, newest first.
+-R: Recursively lists subdirectories.
+
+----------------------------------------
+Query: list all the files in the directory
+Response: 
+[1;36mQuery:[0m list all the files in the directory
+[1;36mCommand:[0m ls
+[1;36mExample Usage:[0m ls -l
+[1;36mTwo-Line Description:[0m The ls command lists directory contents. It displays files and directories in the current directory, with options to show details like permissions, size, and modification date.
+[1;36mOptional Arguments or Flags:[0m
+-a: Includes hidden files (files starting with a dot).
+-l: Uses a long listing format.
+-t: Sorts by modification time (newest first).
+-R: Lists subdirectories recursively.
+
+----------------------------------------
+Query: history
+Response: 
+[1;36mQuery:[0m history
+[1;36mCommand:[0m flatpak-history
+[1;36mExample Usage:[0m flatpak history
+[1;36mTwo-Line Description:[0m Shows changes to flatpak installations (installs, updates, removals) on the system. It retrieves information from the systemd journal.
+[1;36mOptional Arguments or Flags:[0m --user, --installation, --system
+
+----------------------------------------
+
+[2025-04-01 12:55:13]
+Query: list all the files in the directory onlt .py files
+Response: 
+[1;36mQuery:[0m list all the files in the directory onlt .py files
+[1;36mCommand:[0m find
+[1;36mExample Usage:[0m find . -maxdepth 1 -name "*.py"
+[1;36mTwo-Line Description:[0m The   command searches for files in a directory hierarchy based on specified criteria. In this case, it lists only files ending with   in the current directory.
+[1;36mOptional Arguments or Flags:[0m
+ : Limits the search to the current directory, preventing it from going into subdirectories.
+ : Specifies the search pattern to match files ending with ".py".
+ : Represents the starting directory for the search (current directory in this case).
+
+--------------------------------------------------
+
+[2025-04-01 12:55:28]
+Query: list all the files in the directory only .py files
+Response: 
+[1;36mQuery:[0m list all the files in the directory only .py files
+[1;36mCommand:[0m ls
+[1;36mExample Usage:[0m ls *.py
+[1;36mTwo-Line Description:[0m The ls command lists directory contents. The   argument filters the list to only show files ending with the   extension.
+[1;36mOptional Arguments or Flags:[0m
+ : Use a long listing format.
+ : Do not ignore entries starting with  .
+ : Sort by modification time, newest first.
+
+--------------------------------------------------
