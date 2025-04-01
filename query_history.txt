@@ -89,3 +89,31 @@ Response:
  : Sort by modification time, newest first.
 
 --------------------------------------------------
+
+[2025-04-01 18:00:28]
+Query: unzip a zip file to current directory
+Response: 
+[1;36mQuery:[0m unzip a zip file to current directory
+[1;36mCommand:[0m uncompress
+[1;36mExample Usage:[0m uncompress file.Z
+[1;36mTwo-Line Description:[0m The   utility restores files compressed with the   utility to their original state. If no files are specified, it uncompresses the standard input to the standard output.
+[1;36mOptional Arguments or Flags:[0m
+ : Writes to standard output; input files are not affected.
+ : Specifies the maximum number of bits to use during compression. This is relevant when decompressing files compressed on other systems.
+
+--------------------------------------------------
+
+[2025-04-01 18:01:17]
+Query: tar a folder
+Response: 
+[1;36mQuery:[0m tar a folder
+[1;36mCommand:[0m tar
+[1;36mExample Usage:[0m tar -cvf myarchive.tar myfolder/
+[1;36mTwo-Line Description:[0m The   command archives a folder into a single file. The above example creates an archive named "myarchive.tar" containing the folder "myfolder".
+[1;36mOptional Arguments or Flags:[0m
+ : Compress the archive with gzip (creates a .tar.gz file).
+ : Compress the archive with bzip2 (creates a .tar.bz2 file).
+ : Extract files from an archive.
+ : List the contents of an archive.
+
+--------------------------------------------------

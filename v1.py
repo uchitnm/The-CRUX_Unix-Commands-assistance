@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from markdown import markdown
 import re
 import datetime
+import json
 
 def markdown_to_text(markdown_string):
     """ Converts a markdown string to plaintext """
@@ -48,86 +49,184 @@ def retrieve_relevant_data(df, query, index, embedding_model, top_n=5):
     
     return results, context
 
-# Generate a response using Gemini AI with Graph of Thoughts
-def generate_response(query, context):
-    """Generate a structured response using Gemini AI with Graph of Thoughts."""
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    model = "gemini-2.0-flash"
-
-    # Refined Query Template with Graph of Thoughts
-    prompt = f"""
-    You are a UNIX command assistant. Given a user's query, retrieve and suggest the most relevant UNIX command.
-    Use the Graph of Thoughts reasoning method to approach this step by step.
+# Define agent roles and functions
+class AgentSystem:
+    def __init__(self, client, model="gemini-2.0-flash"):
+        self.client = client
+        self.model = model
     
-    **User Query:** {query}
-
-    **Relevant Commands Found:**
-    {context}
-
-    **Graph of Thoughts Approach:**
-    1. Initial Analysis: First, analyze what the user is asking for. Think about:
-      a) What task they're trying to accomplish
-      b) What type of command would be most helpful
-      c) Which of the relevant commands best matches their need
+    def query_analyzer_agent(self, query):
+        """Agent responsible for understanding the user's intent and reformulating the query."""
+        prompt = f"""
+        You are a Query Analyzer Agent. Your role is to:
+        1. Understand the true intent behind a user's UNIX command query
+        2. Identify key concepts and command requirements
+        3. Reformulate or expand the query if needed for better retrieval
+        4. Return a structured analysis that will help with command retrieval
+        
+        User Query: {query}
+        
+        Respond with a JSON object with these fields:
+        - intent: the main purpose of the query
+        - keywords: key terms for retrieval
+        - reformulated_query: an improved version of the original query
+        """
+        
+        contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
+        response = self.client.models.generate_content(model=self.model, contents=contents).text
+        
+        # Extract JSON from response
+        try:
+            analysis = json.loads(response.strip())
+            return analysis
+        except:
+            # Fallback if JSON parsing fails
+            return {"intent": "unknown", "keywords": [query], "reformulated_query": query}
     
-    2. Command Identification: Examine each potential command:
-      a) Evaluate which command is most relevant to the query
-      b) Consider command functionality, common use cases, and limitations
-      c) Compare alternative commands that might serve the same purpose
+    def retrieval_agent(self, df, query, analysis, index, embedding_model, top_n=5):
+        """Agent responsible for retrieving and ranking relevant commands."""
+        # Use both original query and reformulated query for retrieval
+        original_results, original_context = retrieve_relevant_data(df, query, index, embedding_model, top_n)
+        reformed_results, reformed_context = retrieve_relevant_data(df, analysis["reformulated_query"], index, embedding_model, top_n)
+        
+        # Combine and deduplicate results
+        all_commands = {}
+        for result in original_results + reformed_results:
+            if result["Command"] not in all_commands:
+                all_commands[result["Command"]] = result
+        
+        # Let the agent rank and filter these results
+        command_list = list(all_commands.values())
+        command_json = json.dumps(command_list)
+        
+        prompt = f"""
+        You are a Retrieval Agent for UNIX commands. Review these retrieved commands and the user's intent.
+        
+        User Query: {query}
+        User Intent: {analysis["intent"]}
+        
+        Retrieved Commands:
+        {command_json}
+        
+        Rank these commands by relevance to the query and user intent.
+        Return a JSON array of the top 3-5 most relevant commands with their descriptions.
+        """
+        
+        contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
+        response = self.client.models.generate_content(model=self.model, contents=contents).text
+        
+        # Extract JSON from response
+        try:
+            ranked_results = json.loads(response.strip())
+            context = "\n".join([f"Command: {item['Command']}\nDescription: {item['DESCRIPTION']}" for item in ranked_results])
+            return ranked_results, context
+        except:
+            # Fallback if JSON parsing fails
+            return original_results[:3], original_context
     
-    3. Example Construction: Create a practical example:
-      a) Make it clear and relevant to the user's query
-      b) Show proper syntax and typical usage patterns
-      c) Demonstrate the most useful flags or options
+    def response_generator_agent(self, query, analysis, context):
+        """Agent responsible for generating the final structured response."""
+        # This agent uses the Graph of Thoughts methodology to generate responses
+        prompt = f"""
+        You are a UNIX Command Response Agent. Given a user's query and retrieved commands, generate a clear, helpful response.
+        Use the Graph of Thoughts reasoning method to approach this step by step.
+        
+        **User Query:** {query}
+        **User Intent:** {analysis["intent"]}
+
+        **Relevant Commands Found:**
+        {context}
+
+        **Graph of Thoughts Approach:**
+        1. Initial Analysis: First, analyze what the user is asking for. Think about:
+          a) What task they're trying to accomplish
+          b) What type of command would be most helpful
+          c) Which of the relevant commands best matches their need
+        
+        2. Command Identification: Examine each potential command:
+          a) Evaluate which command is most relevant to the query
+          b) Consider command functionality, common use cases, and limitations
+          c) Compare alternative commands that might serve the same purpose
+        
+        3. Example Construction: Create a practical example:
+          a) Make it clear and relevant to the user's query
+          b) Show proper syntax and typical usage patterns
+          c) Demonstrate the most useful flags or options
+        
+        **Task:** Provide a structured response with the following format:
+        - Query: <user query>
+        - Command: <command name>
+        - Example Usage: <example command usage>
+        - Two-Line Description: <brief description of the command>
+        - Optional Arguments or Flags: <list of optional arguments or flags>
+        """
+        
+        contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
+        generate_content_config = types.GenerateContentConfig(response_mime_type="text/plain")
+        
+        # Generate multiple candidate responses
+        candidate_responses = []
+        for _ in range(3):  # Generate 3 candidates
+            response = ""
+            for chunk in self.client.models.generate_content_stream(model=self.model, contents=contents, config=generate_content_config):
+                response += chunk.text
+            plain_response = markdown_to_text(response)  # Convert to plain text
+            candidate_responses.append(plain_response)
+
+        # Evaluate and select the best response
+        best_response = self.evaluate_responses(query, candidate_responses)
+        
+        # Add colors to the response sections
+        best_response = best_response.replace("Query:", "\033[1;36mQuery:\033[0m")  # Cyan
+        best_response = best_response.replace("Command:", "\033[1;36mCommand:\033[0m")  # Cyan
+        best_response = best_response.replace("Example Usage:", "\033[1;36mExample Usage:\033[0m")  # Cyan
+        best_response = best_response.replace("Two-Line Description:", "\033[1;36mTwo-Line Description:\033[0m")  # Cyan
+        best_response = best_response.replace("Optional Arguments or Flags:", "\033[1;36mOptional Arguments or Flags:\033[0m")  # Cyan
+        
+        return best_response
     
-    **Example of this approach:**
-    For query "how to find files by name":
-    - Initial Analysis: User needs to search for files in the filesystem based on filename.
-    - Command Identification: 'find' command is best suited as it's designed for filesystem searches, more powerful than 'ls' or 'grep' for this purpose.
-    - Example Construction: 'find /home -name "*.txt"' demonstrates searching for all text files in the home directory.
-    
-    **Task:** Provide a structured response with the following format:
-    - Query: <user query>
-    - Command: <command name>
-    - Example Usage: <example command usage>
-    - Two-Line Description: <brief description of the command>
-    - Optional Arguments or Flags: <list of optional arguments or flags>
-    """
-    
-    contents = [
-        types.Content(role="user", parts=[types.Part.from_text(text=prompt)]),
-    ]
+    def evaluate_responses(self, query, responses):
+        """Agent responsible for evaluating and selecting the best response."""
+        if len(responses) == 1:
+            return responses[0]
+            
+        responses_json = json.dumps(responses)
+        
+        prompt = f"""
+        You are a Response Evaluation Agent. Evaluate these candidate responses to a user query and select the best one.
+        
+        User Query: {query}
+        
+        Candidate Responses:
+        {responses_json}
+        
+        For each response, evaluate:
+        1. Relevance to the user query
+        2. Accuracy of command information
+        3. Clarity of explanation
+        4. Quality of example
+        5. Completeness of command flags/options
+        
+        Return the index (0, 1, or 2) of the best response with a brief explanation.
+        """
+        
+        contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
+        response = self.client.models.generate_content(model=self.model, contents=contents).text
+        
+        # Parse the response to get the best index
+        try:
+            # Look for a number in the response
+            index_match = re.search(r"(\d+)", response)
+            if index_match:
+                best_index = int(index_match.group(1))
+                if 0 <= best_index < len(responses):
+                    return responses[best_index]
+        except:
+            pass
+        
+        # Default to the longest response if evaluation fails
+        return max(responses, key=len)
 
-    generate_content_config = types.GenerateContentConfig(response_mime_type="text/plain")
-
-    # Generate multiple candidate responses
-    candidate_responses = []
-    for _ in range(3):  # Generate 3 candidates
-        response = ""
-        for chunk in client.models.generate_content_stream(model=model, contents=contents, config=generate_content_config):
-            response += chunk.text
-        plain_response = markdown_to_text(response)  # Convert to plain text
-        candidate_responses.append(plain_response)
-
-    # Evaluate and select the best response
-    best_response = select_best_response(candidate_responses)
-
-    # Add colors to the response sections
-    best_response = best_response.replace("Query:", "\033[1;36mQuery:\033[0m")  # Cyan
-    best_response = best_response.replace("Command:", "\033[1;36mCommand:\033[0m")  # Cyan
-    best_response = best_response.replace("Example Usage:", "\033[1;36mExample Usage:\033[0m")  # Cyan
-    best_response = best_response.replace("Two-Line Description:", "\033[1;36mTwo-Line Description:\033[0m")  # Cyan
-    best_response = best_response.replace("Optional Arguments or Flags:", "\033[1;36mOptional Arguments or Flags:\033[0m")  # Cyan
-
-    return best_response
-
-def select_best_response(responses):
-    """Select the best response from multiple candidates."""
-    # Placeholder logic: Select the longest response as the best one
-    # You can replace this with more sophisticated evaluation criteria
-    return max(responses, key=len)
-
-# Save query history
 def save_query_history(query, response, history_file="query_history.txt"):
     """Save the query and AI response to a history file."""
     with open(history_file, "a") as file:
@@ -136,11 +235,24 @@ def save_query_history(query, response, history_file="query_history.txt"):
         file.write(f"\n[{timestamp}]\nQuery: {query}\nResponse: {response}\n{'-'*50}\n")
 
 def process_query(user_query):
-    """Process a query and return the AI response."""
-    retrieved_commands, context = retrieve_relevant_data(df, user_query, index, embedding_model)
+    """Process a query using the agent system."""
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    agent_system = AgentSystem(client)
+    
+    # Step 1: Analyze the query
+    print("\033[1;33mAnalyzing query...\033[0m")
+    analysis = agent_system.query_analyzer_agent(user_query)
+    
+    # Step 2: Retrieve relevant commands
+    print("\033[1;33mRetrieving relevant commands...\033[0m")
+    retrieved_commands, context = agent_system.retrieval_agent(df, user_query, analysis, index, embedding_model)
+    
     if not retrieved_commands:
         return "No relevant commands found. Try rephrasing your query."
-    return generate_response(user_query, context)
+    
+    # Step 3: Generate response
+    print("\033[1;33mGenerating response...\033[0m")
+    return agent_system.response_generator_agent(user_query, analysis, context)
 
 if __name__ == "__main__":
     # Load data and models
