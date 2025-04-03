@@ -117,3 +117,88 @@ Response:
  : List the contents of an archive.
 
 --------------------------------------------------
+
+[2025-04-03 07:44:23]
+Query: i need to remove all the files with the extension of .go.
+Response: 
+[1;36mQuery:[0m i need to remove all the files with the extension of .go.
+[1;36mCommand:[0m rm
+[1;36mExample Usage:[0m  
+[1;36mTwo-Line Description:[0m The   command removes files. In this case, it will remove all files ending with the   extension in the current directory.
+[1;36mOptional Arguments or Flags:[0m
+ : Force removal, ignoring nonexistent files and suppressing prompts.
+ : Prompt before every removal.
+  or  : Recursively remove directories and their contents. Use with caution.
+
+--------------------------------------------------
+
+[2025-04-03 07:44:58]
+Query: i need to remove all the files with the extension of .py
+Response: 
+[1;36mQuery:[0m i need to remove all the files with the extension of .py
+[1;36mCommand:[0m rm
+[1;36mExample Usage:[0m rm *.py
+[1;36mTwo-Line Description:[0m The rm command removes files. The above command will remove all files ending with the .py extension in the current directory.
+[1;36mOptional Arguments or Flags:[0m
+-f: Force removal, suppressing prompts and error messages if a file does not exist.
+-i: Interactive mode, prompts for confirmation before removing each file.
+-r or -R: Recursive removal, used for directories (be very careful with this).
+
+--------------------------------------------------
+
+[2025-04-03 07:45:21]
+Query: i need to remove all the files with the extension of ".go"
+Response: 
+[1;36mQuery:[0m i need to remove all the files with the extension of ".go"
+[1;36mCommand:[0m rm
+[1;36mExample Usage:[0m  
+[1;36mTwo-Line Description:[0m The   command removes files. In this case, it removes all files ending with the ".go" extension in the current directory.
+[1;36mOptional Arguments or Flags:[0m
+ :  Force removal without prompting.  Useful if you have write-protected files.
+ :  Interactive mode; prompts before deleting each file.
+  or  :  Recursive removal; used to remove directories and their contents (be very careful with this one!).
+
+--------------------------------------------------
+
+[2025-04-03 07:45:41]
+Query: i need to remove all the files with the extension of ".c"
+Response: 
+[1;36mQuery:[0m i need to remove all the files with the extension of ".c"
+[1;36mCommand:[0m rm
+[1;36mExample Usage:[0m  
+[1;36mTwo-Line Description:[0m The   command removes files. Using   with   will remove all files ending with the ".c" extension in the current directory.
+[1;36mOptional Arguments or Flags:[0m
+ : Force removal, ignoring nonexistent files and suppressing prompts.
+ : Prompt before every removal.
+  or  : Recursively remove directories and their contents. Use with caution.
+
+--------------------------------------------------
+
+[2025-04-03 07:49:54]
+Query: list all the files starting with .py
+Response: 
+[1;36mQuery:[0m list all the files starting with .py
+[1;36mCommand:[0m find
+[1;36mExample Usage:[0m  
+[1;36mTwo-Line Description:[0m The   command searches for files in a directory hierarchy. This example finds regular files in the current directory that start with ".py".
+[1;36mOptional Arguments or Flags:[0m
+ :  Search for directories instead of files.
+ : Case-insensitive search.
+ : Match pathnames based on a pattern.
+ : Search based on modification time.
+
+--------------------------------------------------
+
+[2025-04-03 07:50:33]
+Query: list all the files  with .py extextension.
+Response: 
+[1;36mQuery:[0m list all the files with .py extextension.
+[1;36mCommand:[0m find
+[1;36mExample Usage:[0m  
+[1;36mTwo-Line Description:[0m The   command searches for files in a directory hierarchy.  The   option specifies a pattern to match filenames against.
+[1;36mOptional Arguments or Flags:[0m
+ :  Specifies to only find files.
+ :  Specifies case-insensitive search for files ending with  .
+ :  Explicitly prints the matching file paths (default behavior).
+
+--------------------------------------------------

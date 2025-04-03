@@ -27,25 +27,51 @@ def markdown_to_text(markdown_string):
     return text
 
 # Load FAISS index and embedding model
-def load_faiss_index(index_path, model_name="all-MiniLM-L6-v2"):
-    """Load a pre-built FAISS index and initialize the embedding model."""
+def load_faiss_index(index_path, metadata_path=None, model_name="all-MiniLM-L6-v2"):
+    """Load a pre-built FAISS index, metadata, and initialize the embedding model."""
     index = faiss.read_index(index_path)
     embedding_model = SentenceTransformer(model_name)
-    return index, embedding_model
+    
+    # Load chunk metadata if provided
+    chunk_metadata = None
+    if metadata_path and os.path.exists(metadata_path):
+        chunk_metadata = pd.read_csv(metadata_path)
+    
+    return index, embedding_model, chunk_metadata
 
 # Retrieve relevant commands
-def retrieve_relevant_data(df, query, index, embedding_model, top_n=5):
-    """Retrieve the most relevant commands based on FAISS similarity search."""
+def retrieve_relevant_data(df, query, index, embedding_model, chunk_metadata=None, top_n=5):
+    """Retrieve the most relevant commands based on FAISS similarity search with chunk handling."""
     query_embedding = embedding_model.encode([query], convert_to_numpy=True)
     distances, indices = index.search(query_embedding, top_n)
 
     if indices.size == 0:
         return [], ""
 
-    results = df.iloc[indices[0]].to_dict(orient="records")
+    # Handle chunked data if metadata is available
+    if chunk_metadata is not None:
+        # Get metadata for matched chunks
+        matched_chunks = chunk_metadata.iloc[indices[0]].to_dict(orient="records")
+        
+        # Get unique original document indices
+        original_indices = {chunk['original_idx'] for chunk in matched_chunks}
+        
+        # Get results from the original dataframe
+        results = df.iloc[list(original_indices)].to_dict(orient="records")
+        
+        # Add chunk context to each result
+        for result in results:
+            result_chunks = [chunk for chunk in matched_chunks 
+                            if chunk['original_idx'] == df[df['Command'] == result['Command']].index[0]]
+            if result_chunks:
+                result['matched_chunks'] = [chunk['chunk_text'] for chunk in result_chunks]
+    else:
+        # Original behavior if no chunking
+        results = df.iloc[indices[0]].to_dict(orient="records")
     
     # Format retrieved data
-    context = "\n".join([f"Command: {item['Command']}\nDescription: {item['DESCRIPTION']}" for item in results])
+    context = "\n".join([f"Command: {item['Command']}\nDescription: {item['DESCRIPTION']}" 
+                        for item in results])
     
     return results, context
 
@@ -83,11 +109,11 @@ class AgentSystem:
             # Fallback if JSON parsing fails
             return {"intent": "unknown", "keywords": [query], "reformulated_query": query}
     
-    def retrieval_agent(self, df, query, analysis, index, embedding_model, top_n=5):
+    def retrieval_agent(self, df, query, analysis, index, embedding_model, chunk_metadata=None, top_n=5):
         """Agent responsible for retrieving and ranking relevant commands."""
         # Use both original query and reformulated query for retrieval
-        original_results, original_context = retrieve_relevant_data(df, query, index, embedding_model, top_n)
-        reformed_results, reformed_context = retrieve_relevant_data(df, analysis["reformulated_query"], index, embedding_model, top_n)
+        original_results, original_context = retrieve_relevant_data(df, query, index, embedding_model, chunk_metadata, top_n)
+        reformed_results, reformed_context = retrieve_relevant_data(df, analysis["reformulated_query"], index, embedding_model, chunk_metadata, top_n)
         
         # Combine and deduplicate results
         all_commands = {}
@@ -174,16 +200,16 @@ class AgentSystem:
             candidate_responses.append(plain_response)
 
         # Evaluate and select the best response
-        best_response = self.evaluate_responses(query, candidate_responses)
+        _response_ = self.evaluate_responses(query, candidate_responses)
         
         # Add colors to the response sections
-        best_response = best_response.replace("Query:", "\033[1;36mQuery:\033[0m")  # Cyan
-        best_response = best_response.replace("Command:", "\033[1;36mCommand:\033[0m")  # Cyan
-        best_response = best_response.replace("Example Usage:", "\033[1;36mExample Usage:\033[0m")  # Cyan
-        best_response = best_response.replace("Two-Line Description:", "\033[1;36mTwo-Line Description:\033[0m")  # Cyan
-        best_response = best_response.replace("Optional Arguments or Flags:", "\033[1;36mOptional Arguments or Flags:\033[0m")  # Cyan
+        _response_ = _response_.replace("Query:", "\033[1;36mQuery:\033[0m")  # Cyan
+        _response_ = _response_.replace("Command:", "\033[1;36mCommand:\033[0m")  # Cyan
+        _response_ = _response_.replace("Example Usage:", "\033[1;36mExample Usage:\033[0m")  # Cyan
+        _response_ = _response_.replace("Two-Line Description:", "\033[1;36mTwo-Line Description:\033[0m")  # Cyan
+        _response_ = _response_.replace("Optional Arguments or Flags:", "\033[1;36mOptional Arguments or Flags:\033[0m")  # Cyan
         
-        return best_response
+        return _response_
     
     def evaluate_responses(self, query, responses):
         """Agent responsible for evaluating and selecting the best response."""
@@ -234,33 +260,36 @@ def save_query_history(query, response, history_file="query_history.txt"):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         file.write(f"\n[{timestamp}]\nQuery: {query}\nResponse: {response}\n{'-'*50}\n")
 
-def process_query(user_query):
-    """Process a query using the agent system."""
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-    agent_system = AgentSystem(client)
-    
-    # Step 1: Analyze the query
-    print("\033[1;33mAnalyzing query...\033[0m")
-    analysis = agent_system.query_analyzer_agent(user_query)
-    
-    # Step 2: Retrieve relevant commands
-    print("\033[1;33mRetrieving relevant commands...\033[0m")
-    retrieved_commands, context = agent_system.retrieval_agent(df, user_query, analysis, index, embedding_model)
-    
-    if not retrieved_commands:
-        return "No relevant commands found. Try rephrasing your query."
-    
-    # Step 3: Generate response
-    print("\033[1;33mGenerating response...\033[0m")
-    return agent_system.response_generator_agent(user_query, analysis, context)
-
 if __name__ == "__main__":
     # Load data and models
     history_file = "query_history.txt" 
     csv_file = "linux_commands_tokenized.csv"  # Adjust to your file path
     index_path = "faiss_index.bin"  # Path to pre-built FAISS index
+    metadata_path = os.path.splitext(index_path)[0] + "_metadata.csv"  # Path to chunk metadata
+    
     df = pd.read_csv(csv_file)  # Load CSV for command metadata
-    index, embedding_model = load_faiss_index(index_path)
+    index, embedding_model, chunk_metadata = load_faiss_index(index_path, metadata_path)
+
+    # Update the agent system to pass chunk_metadata
+    def process_query(user_query):
+        """Process a query using the agent system."""
+        client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+        agent_system = AgentSystem(client)
+        
+        # Step 1: Analyze the query
+        print("\033[1;33mAnalyzing query...\033[0m")
+        analysis = agent_system.query_analyzer_agent(user_query)
+        
+        # Step 2: Retrieve relevant commands with chunk support
+        print("\033[1;33mRetrieving relevant commands...\033[0m")
+        retrieved_commands, context = agent_system.retrieval_agent(df, user_query, analysis, index, embedding_model, chunk_metadata)
+        
+        if not retrieved_commands:
+            return "No relevant commands found. Try rephrasing your query."
+        
+        # Step 3: Generate response
+        print("\033[1;33mGenerating response...\033[0m")
+        return agent_system.response_generator_agent(user_query, analysis, context)
 
     # Interactive mode
     while True:
