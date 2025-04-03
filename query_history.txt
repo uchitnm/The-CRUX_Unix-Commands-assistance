@@ -274,3 +274,31 @@ Response:
 -o filename: Write the sorted output to filename. This allows you to overwrite the original file. E.g., sort -o myfile.txt myfile.txt
 
 --------------------------------------------------
+
+[2025-04-03 10:56:47]
+Query: How to check current directory?
+Response: 
+[1;36mQuery:[0m How to check current directory?
+[1;36mCommand:[0m pwd
+[1;36mExample Usage:[0m pwd
+[1;36mTwo-Line Description:[0m The pwd command prints the absolute path of your current working directory. It's a quick way to confirm where you are in the file system.
+[1;36mOptional Arguments or Flags:[0m
+-L, --logical: Use the $PWD environment variable, even if it contains symbolic links.
+-P, --physical: Resolve all symbolic links and show the actual physical directory.
+--help: Display help information.
+--version: Output version information.
+
+--------------------------------------------------
+
+[2025-04-03 10:57:05]
+Query: How do I delete all files in a directory but keep the directory itself?
+Response: 
+[1;36mQuery:[0m How do I delete all files in a directory but keep the directory itself?
+[1;36mCommand:[0m rm
+[1;36mExample Usage:[0m rm -f directory/*
+[1;36mTwo-Line Description:[0m This command removes all files within the specified directory. The -f option forces the removal without prompting for confirmation.
+[1;36mOptional Arguments or Flags:[0m
+-f: Force removal; ignore nonexistent files and arguments, never prompt.
+directory/*:  Specifies all files within 'directory'. Be careful when using wildcards like *, especially in critical directories.
+
+--------------------------------------------------
