@@ -17,16 +17,13 @@ else:
     ssl._create_default_https_context = _create_unverified_https_context
 
 # Download necessary NLTK data for sentence tokenization
+print("Checking and downloading NLTK tokenizer resources...")
 try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    try:
-        print("Downloading NLTK punkt tokenizer...")
-        nltk.download('punkt', quiet=True)
-        print("Download complete.")
-    except Exception as e:
-        print(f"Error downloading punkt: {e}")
-        print("Falling back to a basic tokenization approach.")
+    # Download both punkt and punkt_tab if needed
+    nltk.download('punkt')
+except Exception as e:
+    print(f"Warning: Error downloading nltk resources: {e}")
+    print("Will use a simple regex-based tokenizer as fallback.")
 
 def load_csv(file_path):
     """Load the CSV file into a pandas DataFrame."""
@@ -47,13 +44,9 @@ def chunk_text(text, chunk_size=3, overlap=1):
     if not text or not isinstance(text, str):
         return [""]
     
-    # Split text into sentences - use nltk if available, otherwise use basic approach
-    try:
-        from nltk.tokenize import sent_tokenize
-        sentences = sent_tokenize(text)
-    except (ImportError, LookupError):
-        # Basic fallback if NLTK is not available
-        sentences = re.split(r'(?<=[.!?])\s+', text)
+    # Use a simple regex-based sentence tokenizer as it's more reliable
+    # across different NLTK installations
+    sentences = re.split(r'(?<=[.!?])\s+', text)
     
     if len(sentences) <= chunk_size:
         return [text]
