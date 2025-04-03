@@ -11,19 +11,38 @@ import datetime
 import json
 
 def markdown_to_text(markdown_string):
-    """ Converts a markdown string to plaintext """
+    """ Converts a markdown string to plaintext while preserving command examples """
+    # Preserve code blocks before conversion
+    code_blocks = re.findall(r'```(.*?)```', markdown_string, re.DOTALL)
+    code_placeholders = {}
+    for i, block in enumerate(code_blocks):
+        placeholder = f"CODE_BLOCK_{i}"
+        code_placeholders[placeholder] = block
+        markdown_string = markdown_string.replace(f"```{block}```", placeholder)
+
+    # Preserve inline code before conversion
+    inline_codes = re.findall(r'`(.*?)`', markdown_string)
+    inline_placeholders = {}
+    for i, code in enumerate(inline_codes):
+        placeholder = f"INLINE_CODE_{i}"
+        inline_placeholders[placeholder] = code
+        markdown_string = markdown_string.replace(f"`{code}`", placeholder)
 
     # md -> html -> text since BeautifulSoup can extract text cleanly
     html = markdown(markdown_string)
-
-    # remove code snippets
-    html = re.sub(r'<pre>(.*?)</pre>', ' ', html)
-    html = re.sub(r'<code>(.*?)</code>', ' ', html)
-
+    
     # extract text
     soup = BeautifulSoup(html, "html.parser")
     text = ''.join(soup.findAll(string=True))  # Updated to use 'string' instead of 'text'
-
+    
+    # Restore code blocks
+    for placeholder, block in code_placeholders.items():
+        text = text.replace(placeholder, block)
+    
+    # Restore inline code
+    for placeholder, code in inline_placeholders.items():
+        text = text.replace(placeholder, code)
+        
     return text
 
 # Load FAISS index and embedding model
@@ -179,12 +198,22 @@ class AgentSystem:
           b) Show proper syntax and typical usage patterns
           c) Demonstrate the most useful flags or options
         
+        **Important Guidelines:**
+        - Focus on commonly used, well-established UNIX commands (like ls, find, grep, cat, etc.)
+        - For file operations, prioritize commands like 'find', 'ls' or 'grep'
+        - For text searching, prefer 'grep' or 'awk'
+        - For file manipulation, use 'cp', 'mv', 'rm', etc.
+        - Avoid suggesting obscure or non-standard commands unless explicitly required
+        
         **Task:** Provide a structured response with the following format:
         - Query: <user query>
         - Command: <command name>
-        - Example Usage: <example command usage>
+        - Example Usage: <specific command with all necessary flags and arguments>
         - Two-Line Description: <brief description of the command>
-        - Optional Arguments or Flags: <list of optional arguments or flags>
+        - Optional Arguments or Flags: <list each flag on a new line with its description>
+          
+        Ensure all command examples and flags are surrounded by backticks to preserve formatting.
+        For example: `-name "*.py"` rather than just -name "*.py"
         """
         
         contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
@@ -199,8 +228,33 @@ class AgentSystem:
             plain_response = markdown_to_text(response)  # Convert to plain text
             candidate_responses.append(plain_response)
 
+        # Validate responses and filter out strange commands
+        validated_responses = []
+        common_unix_commands = [
+            "ls", "find", "grep", "awk", "sed", "cat", "cp", "mv", "rm", "mkdir", 
+            "chmod", "chown", "ps", "top", "kill", "df", "du", "tar", "gzip", 
+            "ssh", "scp", "rsync", "curl", "wget", "sort", "uniq", "head", "tail",
+            "less", "more", "touch", "echo", "which", "whereis", "man", "pwd"
+        ]
+        
+        for response in candidate_responses:
+            # Extract command name
+            cmd_match = re.search(r"Command:\s*(\w+)", response)
+            if cmd_match:
+                cmd_name = cmd_match.group(1).lower()
+                if cmd_name in common_unix_commands:
+                    validated_responses.append(response)
+                    continue
+            
+            # If command not in common list or not extracted, still keep the response
+            # but with lower priority
+            validated_responses.append(response)
+            
+        if not validated_responses:
+            validated_responses = candidate_responses
+            
         # Evaluate and select the best response
-        _response_ = self.evaluate_responses(query, candidate_responses)
+        _response_ = self.evaluate_responses(query, validated_responses)
         
         # Add colors to the response sections
         _response_ = _response_.replace("Query:", "\033[1;36mQuery:\033[0m")  # Cyan
@@ -214,7 +268,7 @@ class AgentSystem:
     def evaluate_responses(self, query, responses):
         """Agent responsible for evaluating and selecting the best response."""
         if len(responses) == 1:
-            return responses[0]
+            return self.format_final_response(responses[0])
             
         responses_json = json.dumps(responses)
         
@@ -228,12 +282,13 @@ class AgentSystem:
         
         For each response, evaluate:
         1. Relevance to the user query
-        2. Accuracy of command information
+        2. Accuracy of command information - prefer standard UNIX commands like ls, find, grep, etc.
         3. Clarity of explanation
         4. Quality of example
         5. Completeness of command flags/options
         
         Return the index (0, 1, or 2) of the best response with a brief explanation.
+        Focus on responses that use well-known UNIX commands rather than obscure ones.
         """
         
         contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
@@ -246,12 +301,36 @@ class AgentSystem:
             if index_match:
                 best_index = int(index_match.group(1))
                 if 0 <= best_index < len(responses):
-                    return responses[best_index]
+                    return self.format_final_response(responses[best_index])
         except:
             pass
         
         # Default to the longest response if evaluation fails
-        return max(responses, key=len)
+        return self.format_final_response(max(responses, key=len))
+    
+    def format_final_response(self, response):
+        """Format the final response to ensure all command details are preserved."""
+        # Ensure all command information is properly displayed
+        sections = [
+            "Query:", "Command:", "Example Usage:", 
+            "Two-Line Description:", "Optional Arguments or Flags:"
+        ]
+        
+        formatted_response = response
+        
+        # Make sure there's no blank lines between section headers and content
+        for section in sections:
+            pattern = f"({section})\\s*\\n\\s*\\n"  # Fixed escape sequences
+            formatted_response = re.sub(pattern, r"\1 ", formatted_response)
+        
+        # Ensure flags and options are properly formatted
+        if "Optional Arguments or Flags:" in formatted_response:
+            flags_section = formatted_response.split("Optional Arguments or Flags:")[1]
+            # Replace any missing flag details
+            flags_section = re.sub(r'(\\s*:)\\s*\\n', r'\1 [flag description missing]\n', flags_section)
+            formatted_response = formatted_response.split("Optional Arguments or Flags:")[0] + "Optional Arguments or Flags:" + flags_section
+            
+        return formatted_response
 
 def save_query_history(query, response, history_file="query_history.txt"):
     """Save the query and AI response to a history file."""

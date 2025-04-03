@@ -1,0 +1,36 @@
+# UNIX Command Test Queries
+# Format: Question | Expected Command
+
+# Simple Queries
+How do I list files in a directory? | ls
+How to view the contents of a file? | cat
+How do I create a new directory? | mkdir
+How to check current directory? | pwd
+How to find a specific file? | find
+How to search for text in files? | grep
+
+# Medium Queries
+How do I list all files with .txt extension in current directory? | find or ls
+How to count the number of lines in a file? | wc
+How to find all files modified in the last 24 hours? | find
+How do I delete all files in a directory but keep the directory itself? | rm
+How to check disk space usage? | df or du
+How to search for 'error' in all log files? | grep
+How to compress multiple files into a single archive? | tar
+How to download a file from the internet? | wget or curl
+How do I change permissions of a file to make it executable? | chmod
+How to find differences between two files? | diff
+How to sort a file alphabetically? | sort
+How to redirect the output of a command to a file? | > (redirect operator)
+
+# Slightly More Complex Queries
+How to find all empty directories in the current folder and its subfolders? | find
+How to list all processes using port 8080? | lsof or netstat
+How to recursively find and replace a string in multiple files? | grep and sed
+How do I monitor system resources in real time? | top or htop
+How to schedule a command to run at a specific time? | cron
+How to count occurrences of a specific word across multiple files? | grep and wc
+How to kill all processes of a specific application? | pkill
+How to extract specific columns from a CSV file? | awk or cut
+How to find the 10 largest files in a directory? | find, du and sort
+How to securely copy files between remote servers? | scp or rsync

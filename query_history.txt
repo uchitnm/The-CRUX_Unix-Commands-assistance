@@ -202,3 +202,75 @@ Response:
  :  Explicitly prints the matching file paths (default behavior).
 
 --------------------------------------------------
+
+[2025-04-03 07:54:23]
+Query: list all the files with .py extension in current direcory
+Response: 
+[1;36mQuery:[0m list all the files with .py extension in current direcory
+[1;36mCommand:[0m guards
+[1;36mExample Usage:[0m guards --list | grep '\.py$'
+[1;36mTwo-Line Description:[0m This command lists all files, then filters for those ending in '.py'. guards command's --list option lists all files independent of any rules and grep filters the files with the given extension.
+[1;36mOptional Arguments or Flags:[0m
+--list: List all files independent of any rules.
+
+--------------------------------------------------
+
+[2025-04-03 07:58:09]
+Query: list all the files with .py extension in current directory
+Response: 
+[1;36mQuery:[0m list all the files with .py extension in current directory
+[1;36mCommand:[0m find
+[1;36mExample Usage:[0m find . -maxdepth 1 -name "*.py"
+[1;36mTwo-Line Description:[0m The find command searches for files in a directory hierarchy.  This example finds all files with the .py extension in the current directory and its immediate children, without traversing deeper.
+[1;36mOptional Arguments or Flags:[0m
+-name "*.py":  Specifies the search pattern, in this case, files ending with .py.
+. : Specifies the directory to search in (current directory).
+-maxdepth 1: Limits the search to the current directory (depth of 1).  Without this, find would search subdirectories as well.
+
+--------------------------------------------------
+
+[2025-04-03 07:59:03]
+Query: rm all the files present in the pwd with .go extension
+Response: 
+[1;36mQuery:[0m rm all the files present in the pwd with .go extension
+[1;36mCommand:[0m find
+[1;36mExample Usage:[0m find . -name "*.go" -type f -print0 | xargs -0 rm -f
+[1;36mTwo-Line Description:[0m This command uses find to locate all files with the .go extension in the current directory and then uses rm to remove them. The -f flag forces the removal of write-protected files without prompting.
+[1;36mOptional Arguments or Flags:[0m
+-name "*.go": Specifies the pattern to search for (files ending with .go).
+-type f: Limits the search to files only.
+-print0: Prints the filenames separated by null characters, which is safer for filenames containing spaces or special characters.
+xargs -0 rm -f: Takes the null-separated filenames from find and passes them to find1 for deletion. The find2 option tells find3 to expect null-separated inputs.
+find1: force remove files without prompting
+
+--------------------------------------------------
+
+[2025-04-03 08:00:11]
+Query: How to search for text in files?
+Response: 
+[1;36mQuery:[0m How to search for text in files?
+[1;36mCommand:[0m grep
+[1;36mExample Usage:[0m grep "search_term" *.txt
+[1;36mTwo-Line Description:[0m The grep command searches for lines containing a specific pattern in one or more files. This example searches for the term "search_term" in all .txt files in the current directory.
+[1;36mOptional Arguments or Flags:[0m
+-i: Ignore case distinctions, so grep -i "search_term" file.txt will match "Search_Term", "search_term", etc.
+-r:  Recursively search directories, e.g., grep -r "search_term" . searches the current directory and all its subdirectories.
+-n:  Show line numbers with the matching lines, like grep -n "search_term" file.txt.
+-v: Invert the match, showing lines that do not contain the search term: grep0.
+grep1: Match whole words only: grep2 will only match the whole word "search_term", not "search_terminal".
+
+--------------------------------------------------
+
+[2025-04-03 08:00:31]
+Query: How to sort a file alphabetically?
+Response: 
+[1;36mQuery:[0m How to sort a file alphabetically?
+[1;36mCommand:[0m sort
+[1;36mExample Usage:[0m sort myfile.txt
+[1;36mTwo-Line Description:[0m The sort command sorts the lines of a file. By default, it sorts alphabetically.
+[1;36mOptional Arguments or Flags:[0m
+-r: Reverse the order of the sort.
+-n: Sort numerically.
+-o filename: Write the sorted output to filename. This allows you to overwrite the original file. E.g., sort -o myfile.txt myfile.txt
+
+--------------------------------------------------
