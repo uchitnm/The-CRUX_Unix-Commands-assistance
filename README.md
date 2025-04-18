@@ -44,7 +44,6 @@ GenAI_with_GemnAI/
 ### Prerequisites
 - Python 3.8 or higher
 - pip (Python package manager)
-- Node.js (for frontend development, if needed)
 
 ### Steps
 1. Clone the repository:
@@ -94,7 +93,7 @@ Contributions are welcome! Please follow these steps:
 3. Submit a pull request with a detailed description of your changes.
 
 
-## Acknowledgments
+## Techstack
 - **FAISS**: For efficient similarity search and clustering.
 - **Flask**: For the web framework.
 - **Google GenAI**: For advanced AI capabilities.
