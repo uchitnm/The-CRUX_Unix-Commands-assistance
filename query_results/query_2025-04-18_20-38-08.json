@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "timestamp": "2025-04-18_20-38-08",
+    "query_id": "query_2025-04-18_20-38-08",
+    "original_query": "find and list all running processes by memory useage",
+    "optimized_query": "How can I list all running processes sorted by memory consumption, displaying the process ID (PID) and memory usage in a human-readable format?",
+    "query_intent": "The user wants to identify and list all currently running processes, sorted by their memory usage (likely from highest to lowest).",
+    "keywords": [
+      "find",
+      "list",
+      "running processes",
+      "memory usage",
+      "sort"
+    ],
+    "optimization_metrics": {
+      "precision": 1.0,
+      "recall": 0,
+      "f1_score": 0,
+      "retrieval_time": 0.013813972473144531,
+      "command_count": 5,
+      "diverse_categories": 0,
+      "query_specificity": 0.65,
+      "overall_score": 0.6593093013763428
+    }
+  },
+  "retrieved_commands": [
+    {
+      "command": "lttng-list",
+      "description": "the\nlttng list\ncommand lists tracing sessions, tracing domains,\n       channels, and events.\n\n       without arguments,\nlttng list\nlists the existing tracing sessions\n       and shows if they are active or not.\n\n       with one or more of the\n--kernel\n,\n--userspace\n,\n--jul\n,\n--log4j\n, and\n--python\ndomain options, the command lists the available event\n       sources of the selected domain on the system. the jul, log4j, and\n       python domains list the names of their available\nloggers\n. the\n--syscall\noption can be used alongside the\n--kernel\noption to get\n       a list of traceable linux system calls. the\n--fields\noption can be\n       used to show the fields of the listed event sources.\n\n       providing a tracing session name\nsession\ntargets a specific\n       tracing session. if the\n--domain\noption is used, domains\n       containing at least one channel in the selected tracing session\n       are listed. otherwise, all the domains, channels, and event rules\n       of the selected tracing session are listed along with its details\n       (trace path, for example), except when the\n--channel\noption is\n       used to isolate a specific channel by name.",
+      "examples": "",
+      "options": ""
+    },
+    {
+      "command": "pmsignal",
+      "description": "pmsignal\nprovides a cross-platform event signalling mechanism for\n       use with tools from the performance co-pilot toolkit.  it can be\n       used to send a named\nsignal\n(only hup, usr1, term, and kill are\n       accepted) to one or more processes.\n\n       the processes are specified directly using pids or as program\n       names (with either the\n-a\nor\n-p\noptions).  in the\nall\ncase, the\n       set of all running processes is searched for a\nbasename(1)\nmatch\n       on\nname\n.  in the\nprogram\ncase, process identifiers are extracted\n       from files in the $pcp_run_dir directory where file names are\n       matched on\nname\n.pid.\n\n       the\n-n\noption reports the list of process identifiers that would\n       have been signalled, but no signals are actually sent.\n\n       if a\nsignal\nis not specified, then the term signal will be sent.\n       the list of supported signals is reported when using the\n-l\noption.\n\n       on linux and unix platforms,\npmsignal\nis a simple wrapper around\n       the\nkill(1)\ncommand.  on windows, the is no direct equivalent to\n       this mechanism, and so an alternate mechanism has been implemented\n       - this is only honoured by pcp tools, however, not all windows\n       utilities.",
+      "examples": "",
+      "options": ""
+    },
+    {
+      "command": "who",
+      "description": "print information about users who are currently logged in.\n-a\n,\n--all\nsame as\n-b -d --login -p -r -t -t -u\n-b\n,\n--boot\ntime of last system boot\n-d\n,\n--dead\nprint dead processes\n-h\n,\n--heading\nprint line of column headings\n-l\n,\n--login\nprint system login processes\n--lookup\nattempt to canonicalize hostnames via dns\n-m\nonly hostname and user associated with stdin\n-p\n,\n--process\nprint active processes spawned by init\n-q\n,\n--count\nall login names and number of users logged on\n-r\n,\n--runlevel\nprint current runlevel\n-s\n,\n--short\nprint only name, line, and time (default)\n-t\n,\n--time\nprint last system clock change\n-t\n,\n-w\n,\n--mesg\nadd user's message status as +, - or ?\n-u\n,\n--users\nlist users logged in\n--message\nsame as\n-t\n--writable\nsame as\n-t\n--help\ndisplay this help and exit\n--version\noutput version information and exit\n\n       if file is not specified, use\n/var/run/utmp\n.\n/var/log/wtmp\nas\n       file is common.  if arg1 arg2 given,\n-m\npresumed: 'am i' or 'mom\n       likes' are usual.",
+      "examples": "",
+      "options": ""
+    },
+    {
+      "command": "memusage",
+      "description": "memusage\nis a\nbash(1)\nscript which profiles memory usage of the\n       program,\nprogram\n.  it preloads the\nlibmemusage.so\nlibrary into the\n       caller's environment (via the\nld_preload\nenvironment variable; see\nld.so(8)\n).  the\nlibmemusage.so\nlibrary traces memory allocation by\n       intercepting calls to\nmalloc(3)\n,\ncalloc(3)\n,\nfree(3)\n, and\nrealloc(3)\n; optionally, calls to\nmmap(2)\n,\nmremap(2)\n, and\nmunmap(2)\ncan also be intercepted.\nmemusage\ncan output the collected data in textual form, or it can\n       use\nmemusagestat(1)\n(see the\n-p\noption,  below) to create a png\n       file containing graphical representation of the collected data.\nmemory usage summary\nthe \"memory usage summary\" line output by\nmemusage\ncontains three\n       fields:\nheap total\nsum of\nsize\narguments of all\nmalloc(3)\ncalls, products\n                  of arguments (\nn\n*\nsize\n) of all\ncalloc(3)\ncalls, and sum\n                  of\nlength\narguments of all\nmmap(2)\ncalls.  in the case\n                  of\nrealloc(3)\nand\nmremap(2)\n, if the new size of an\n                  allocation is larger than the previous size, the sum of\n                  all such differences (new size minus old size) is\n                  added.\nheap peak\nmaximum of all\nsize\narguments of\nmalloc(3)\n, all\n                  products of\nn\n*\nsize\nof\ncalloc(3)\n, all\nsize\narguments of\nrealloc(3)\n,\nlength\narguments of\nmmap(2)\n, and\nnew_size\narguments of\nmremap(2)\n.\nstack peak\nbefore the first call to any monitored function, the\n                  stack pointer address (base stack pointer) is saved.\n                  after each function call, the actual stack pointer\n                  address is read and the difference from the base stack\n                  pointer computed.  the maximum of these differences is\n                  then the stack peak.\n\n       immediately following this summary line, a table shows the number\n       calls, total memory allocated or deallocated, and number of failed\n       calls for each intercepted function.  for\nrealloc(3)\nand\nmremap(2)\n, the additional field \"nomove\" shows reallocations that\n       changed the address of a block, and the additional \"dec\" field\n       shows reallocations that decreased the size of the block.  for\nrealloc(3)\n, the additional field \"free\" shows reallocations that\n       caused a block to be freed (i.e., the reallocated size was 0).\n\n       the \"realloc/total memory\" of the table output by\nmemusage\ndoes\n       not reflect cases where\nrealloc(3)\nis used to reallocate a block\n       of memory to have a smaller size than previously.  this can cause\n       sum of all \"total memory\" cells (excluding \"free\") to be larger\n       than the \"free/total memory\" cell.\nhistogram for block sizes\nthe \"histogram for block sizes\" provides a breakdown of memory\n       allocations into various bucket sizes.",
+      "examples": "",
+      "options": ""
+    },
+    {
+      "command": "top",
+      "description": "the\ntop\nprogram provides a dynamic real-time view of a running\n       system.  it can display\nsystem\nsummary information as well as a\n       list of\nprocesses\nor\nthreads\ncurrently being managed by the linux\n       kernel.  the types of system summary information shown and the\n       types, order and size of information displayed for processes are\n       all user configurable and that configuration can be made\n       persistent across restarts.\n\n       the program provides a limited interactive interface for process\n       manipulation as well as a much more extensive interface for\n       personal configuration  --  encompassing every aspect of its\n       operation.  and while\ntop\nis referred to throughout this document,\n       you are free to name the program anything you wish.  that new\n       name, possibly an alias, will then be reflected on top's display\n       and used when reading and writing a configuration file.",
+      "examples": "",
+      "options": ""
+    }
+  ],
+  "context": "Retrieved commands:\n\nCommand: lttng-list\nDescription: the\nlttng list\ncommand lists tracing sessions, tracing domains,\n       channels, and events.\n\n       without arguments,\nlttng list\nlists the existing tracing sessions\n       and shows if they are active or not.\n\n       with one or more of the\n--kernel\n,\n--userspace\n,\n--jul\n,\n--log4j\n, and\n--python\ndomain options, the command lists the available event\n       sources of the selected domain on the system. the jul, log4j, and\n       python domains list the names of their available\nloggers\n. the\n--syscall\noption can be used alongside the\n--kernel\noption to get\n       a list of traceable linux system calls. the\n--fields\noption can be\n       used to show the fields of the listed event sources.\n\n       providing a tracing session name\nsession\ntargets a specific\n       tracing session. if the\n--domain\noption is used, domains\n       containing at least one channel in the selected tracing session\n       are listed. otherwise, all the domains, channels, and event rules\n       of the selected tracing session are listed along with its details\n       (trace path, for example), except when the\n--channel\noption is\n       used to isolate a specific channel by name.\nRelevant sections:\n- \n\n---\n\nCommand: pmsignal\nDescription: pmsignal\nprovides a cross-platform event signalling mechanism for\n       use with tools from the performance co-pilot toolkit.  it can be\n       used to send a named\nsignal\n(only hup, usr1, term, and kill are\n       accepted) to one or more processes.\n\n       the processes are specified directly using pids or as program\n       names (with either the\n-a\nor\n-p\noptions).  in the\nall\ncase, the\n       set of all running processes is searched for a\nbasename(1)\nmatch\n       on\nname\n.  in the\nprogram\ncase, process identifiers are extracted\n       from files in the $pcp_run_dir directory where file names are\n       matched on\nname\n.pid.\n\n       the\n-n\noption reports the list of process identifiers that would\n       have been signalled, but no signals are actually sent.\n\n       if a\nsignal\nis not specified, then the term signal will be sent.\n       the list of supported signals is reported when using the\n-l\noption.\n\n       on linux and unix platforms,\npmsignal\nis a simple wrapper around\n       the\nkill(1)\ncommand.  on windows, the is no direct equivalent to\n       this mechanism, and so an alternate mechanism has been implemented\n       - this is only honoured by pcp tools, however, not all windows\n       utilities.\nRelevant sections:\n- \n\n---\n\nCommand: who\nDescription: print information about users who are currently logged in.\n-a\n,\n--all\nsame as\n-b -d --login -p -r -t -t -u\n-b\n,\n--boot\ntime of last system boot\n-d\n,\n--dead\nprint dead processes\n-h\n,\n--heading\nprint line of column headings\n-l\n,\n--login\nprint system login processes\n--lookup\nattempt to canonicalize hostnames via dns\n-m\nonly hostname and user associated with stdin\n-p\n,\n--process\nprint active processes spawned by init\n-q\n,\n--count\nall login names and number of users logged on\n-r\n,\n--runlevel\nprint current runlevel\n-s\n,\n--short\nprint only name, line, and time (default)\n-t\n,\n--time\nprint last system clock change\n-t\n,\n-w\n,\n--mesg\nadd user's message status as +, - or ?\n-u\n,\n--users\nlist users logged in\n--message\nsame as\n-t\n--writable\nsame as\n-t\n--help\ndisplay this help and exit\n--version\noutput version information and exit\n\n       if file is not specified, use\n/var/run/utmp\n.\n/var/log/wtmp\nas\n       file is common.  if arg1 arg2 given,\n-m\npresumed: 'am i' or 'mom\n       likes' are usual.\n\n---\n\nCommand: memusage\nDescription: memusage\nis a\nbash(1)\nscript which profiles memory usage of the\n       program,\nprogram\n.  it preloads the\nlibmemusage.so\nlibrary into the\n       caller's environment (via the\nld_preload\nenvironment variable; see\nld.so(8)\n).  the\nlibmemusage.so\nlibrary traces memory allocation by\n       intercepting calls to\nmalloc(3)\n,\ncalloc(3)\n,\nfree(3)\n, and\nrealloc(3)\n; optionally, calls to\nmmap(2)\n,\nmremap(2)\n, and\nmunmap(2)\ncan also be intercepted.\nmemusage\ncan output the collected data in textual form, or it can\n       use\nmemusagestat(1)\n(see the\n-p\noption,  below) to create a png\n       file containing graphical representation of the collected data.\nmemory usage summary\nthe \"memory usage summary\" line output by\nmemusage\ncontains three\n       fields:\nheap total\nsum of\nsize\narguments of all\nmalloc(3)\ncalls, products\n                  of arguments (\nn\n*\nsize\n) of all\ncalloc(3)\ncalls, and sum\n                  of\nlength\narguments of all\nmmap(2)\ncalls.  in the case\n                  of\nrealloc(3)\nand\nmremap(2)\n, if the new size of an\n                  allocation is larger than the previous size, the sum of\n                  all such differences (new size minus old size) is\n                  added.\nheap peak\nmaximum of all\nsize\narguments of\nmalloc(3)\n, all\n                  products of\nn\n*\nsize\nof\ncalloc(3)\n, all\nsize\narguments of\nrealloc(3)\n,\nlength\narguments of\nmmap(2)\n, and\nnew_size\narguments of\nmremap(2)\n.\nstack peak\nbefore the first call to any monitored function, the\n                  stack pointer address (base stack pointer) is saved.\n                  after each function call, the actual stack pointer\n                  address is read and the difference from the base stack\n                  pointer computed.  the maximum of these differences is\n                  then the stack peak.\n\n       immediately following this summary line, a table shows the number\n       calls, total memory allocated or deallocated, and number of failed\n       calls for each intercepted function.  for\nrealloc(3)\nand\nmremap(2)\n, the additional field \"nomove\" shows reallocations that\n       changed the address of a block, and the additional \"dec\" field\n       shows reallocations that decreased the size of the block.  for\nrealloc(3)\n, the additional field \"free\" shows reallocations that\n       caused a block to be freed (i.e., the reallocated size was 0).\n\n       the \"realloc/total memory\" of the table output by\nmemusage\ndoes\n       not reflect cases where\nrealloc(3)\nis used to reallocate a block\n       of memory to have a smaller size than previously.  this can cause\n       sum of all \"total memory\" cells (excluding \"free\") to be larger\n       than the \"free/total memory\" cell.\nhistogram for block sizes\nthe \"histogram for block sizes\" provides a breakdown of memory\n       allocations into various bucket sizes.\nRelevant sections:\n- \n\n---\n\nCommand: top\nDescription: the\ntop\nprogram provides a dynamic real-time view of a running\n       system.  it can display\nsystem\nsummary information as well as a\n       list of\nprocesses\nor\nthreads\ncurrently being managed by the linux\n       kernel.  the types of system summary information shown and the\n       types, order and size of information displayed for processes are\n       all user configurable and that configuration can be made\n       persistent across restarts.\n\n       the program provides a limited interactive interface for process\n       manipulation as well as a much more extensive interface for\n       personal configuration  --  encompassing every aspect of its\n       operation.  and while\ntop\nis referred to throughout this document,\n       you are free to name the program anything you wish.  that new\n       name, possibly an alias, will then be reflected on top's display\n       and used when reading and writing a configuration file.\nRelevant sections:\n- \n\n---\n\n",
+  "response": "Here's how to list all running processes sorted by memory usage:\n\n**Command:** `ps`\n\n**Explanation:** The `ps` command displays information about active processes.  We'll use it with specific options to get the desired output and sorting.\n\n**Example:**\n\n```bash\nps -eo pid,rss,command --sort=-rss\n```\n\n*   `-eo pid,rss,command`: Specifies the output format. `pid` is the process ID, `rss` is the Resident Set Size (memory usage in kilobytes), and `command` is the command being executed.\n*   `--sort=-rss`: Sorts the output by the `rss` field in descending order (highest memory usage first).\n\n**Alternative with Human-Readable Memory:**\n\n```bash\nps -eo pid,rsz,command --sort=-rsz | awk '{$2=int($2/1024)\"MB\"; print}'\n```\n\n*   `-eo pid,rsz,command`: Specifies the output format. `pid` is the process ID, `rsz` is the Resident Set Size (memory usage in kilobytes), and `command` is the command being executed.\n*   `--sort=-rsz`: Sorts the output by the `rss` field in descending order (highest memory usage first).\n*   `awk '{$2=int($2/1024)\"MB\"; print}'`: Formats the memory usage to Megabytes\n",
+  "analysis": {
+    "query_analysis": {
+      "intent": "The user wants to identify and list all currently running processes, sorted by their memory usage (likely from highest to lowest).",
+      "keywords": [
+        "find",
+        "list",
+        "running processes",
+        "memory usage",
+        "sort"
+      ],
+      "reformulated_query": "How can I list all running processes sorted by memory consumption, displaying the process ID (PID) and memory usage in a human-readable format?",
+      "original_query": "find and list all running processes by memory useage",
+      "optimized_query": "find and listing all running processes by memory useage",
+      "optimization_metrics": {
+        "precision": 1.0,
+        "recall": 0,
+        "f1_score": 0,
+        "retrieval_time": 0.013813972473144531,
+        "command_count": 5,
+        "diverse_categories": 0,
+        "query_specificity": 0.65,
+        "overall_score": 0.6593093013763428
+      }
+    },
+    "command_relevance": [
+      {
+        "command": "lttng-list",
+        "relevance_score": 0.54
+      },
+      {
+        "command": "pmsignal",
+        "relevance_score": 0.28
+      },
+      {
+        "command": "who",
+        "relevance_score": 0.24000000000000002
+      },
+      {
+        "command": "memusage",
+        "relevance_score": 0.24000000000000002
+      },
+      {
+        "command": "top",
+        "relevance_score": 0.24000000000000002
+      }
+    ]
+  },
+  "command_chains": {
+    "next_commands": [
+      "dash",
+      "mariadb-test",
+      "mariadb-upgrade",
+      "aria_chk",
+      "mariadb-admin"
+    ],
+    "command_chains": [
+      ""
+    ]
+  }
+}

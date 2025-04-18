@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "timestamp": "2025-04-18_20-34-59",
+    "query_id": "query_2025-04-18_20-34-59",
+    "original_query": "Get a list of all installed packages with their version numbers (on a Debian-based system)",
+    "optimized_query": "How do I list all installed packages with their version numbers on a Debian-based system like Ubuntu, and what command can I use to achieve this, ideally providing a concise output?",
+    "query_intent": "The user wants to list all installed packages and their corresponding version numbers on a Debian-based system.",
+    "keywords": [
+      "installed packages",
+      "version numbers",
+      "Debian",
+      "package list",
+      "version"
+    ],
+    "optimization_metrics": {
+      "precision": 1.0,
+      "recall": 0,
+      "f1_score": 0,
+      "retrieval_time": 0.012166023254394531,
+      "command_count": 5,
+      "diverse_categories": 1,
+      "query_specificity": 0.65,
+      "overall_score": 0.726058365503947
+    }
+  },
+  "retrieved_commands": [
+    {
+      "command": "stg-version",
+      "description": "print version information and exit",
+      "examples": "",
+      "options": ""
+    },
+    {
+      "command": "dpkg-name",
+      "description": "this manual page documents the\ndpkg-name\nprogram which provides an\n       easy way to rename\ndebian\npackages into their full package names.\n       a full package name consists of\npackage\n_\nversion\n_\narchitecture\n.\npackage-type\nas specified in the\n       control file of the package.  the\nversion\npart of the filename\n       consists of the upstream version information optionally followed\n       by a hyphen and the revision information.  the\npackage-type\npart\n       comes from that field if present or will fall back to\ndeb\n.",
+      "examples": "",
+      "options": ""
+    },
+    {
+      "command": "nproc",
+      "description": "print the number of processing units available to the current\n       process, which may be less than the number of online processors\n--all\nprint the number of installed processors\n--ignore\n=\nn\nif possible, exclude n processing units\n--help\ndisplay this help and exit\n--version\noutput version information and exit",
+      "examples": "",
+      "options": ""
+    },
+    {
+      "command": "dh_installchangelogs",
+      "description": "dh_installchangelogs\nis a debhelper program that is responsible\n       for installing changelogs into package build directories.\n\n       an upstream\nchangelog\nfile may be specified as an option. if none\n       is specified,\ndh_installchangelogs\nmay look for files with names\n       that seem likely to be changelogs as described in the next\n       paragraphs.\n\n       in non-native packages,\ndh_installchangelogs\nwill first look for\n       changelog files installed by the upstream build system into\nusr/share/doc/package\n(of the package build directory) and rename\n       the most likely candidate (if any) to\nusr/share/doc/package/changelog\n.  note that\ndh_installchangelogs\ndoes\nnot\nlook into any source directory (such as\ndebian/tmp\n).\n       otherwise,\ndh_installchangelogs\n(at compatibility level 7 or any\n       later) will look for changelog files in the source directory (e.g.\n       the root or the\ndocs\nsubdirectory).  it will look for\nchangelog\n,\nchanges\nand\nhistory\noptionally with common extensions (such as\n.txt\n,\n.md\n,\n.rst\n,\n.org\n, etc.)\n\n       if a changelog file is specified and is an\nhtml\nfile (determined\n       by file extension), it will be installed as\nusr/share/doc/package/changelog.html\ninstead. if the html\n       changelog is converted to plain text, that variant can be\n       specified as a second parameter. when no plain text variant is\n       specified, a short\nusr/share/doc/package/changelog\nis generated,\n       pointing readers at the html changelog file.\n\n       the\ndebchange\n-style debian changelogs are trimmed to include only\n       entries more recent than the release date of\noldstable\n.  no\n       trimming will be performed if the\n--no-trim\noption is passed or if\n       the\ndeb_build_options\nenvironment variable contains\nnotrimdch\n.",
+      "examples": "",
+      "options": ""
+    },
+    {
+      "command": "groups",
+      "description": "print group memberships for each username or, if no username is\n       specified, for the current process (which may differ if the groups\n       database has changed).\n--help\ndisplay this help and exit\n--version\noutput version information and exit",
+      "examples": "",
+      "options": ""
+    }
+  ],
+  "context": "Retrieved commands:\n\nCommand: stg-version\nDescription: print version information and exit\nRelevant sections:\n- \n\n---\n\nCommand: dpkg-name\nDescription: this manual page documents the\ndpkg-name\nprogram which provides an\n       easy way to rename\ndebian\npackages into their full package names.\n       a full package name consists of\npackage\n_\nversion\n_\narchitecture\n.\npackage-type\nas specified in the\n       control file of the package.  the\nversion\npart of the filename\n       consists of the upstream version information optionally followed\n       by a hyphen and the revision information.  the\npackage-type\npart\n       comes from that field if present or will fall back to\ndeb\n.\nRelevant sections:\n- \n\n---\n\nCommand: nproc\nDescription: print the number of processing units available to the current\n       process, which may be less than the number of online processors\n--all\nprint the number of installed processors\n--ignore\n=\nn\nif possible, exclude n processing units\n--help\ndisplay this help and exit\n--version\noutput version information and exit\nRelevant sections:\n- \n\n---\n\nCommand: dh_installchangelogs\nDescription: dh_installchangelogs\nis a debhelper program that is responsible\n       for installing changelogs into package build directories.\n\n       an upstream\nchangelog\nfile may be specified as an option. if none\n       is specified,\ndh_installchangelogs\nmay look for files with names\n       that seem likely to be changelogs as described in the next\n       paragraphs.\n\n       in non-native packages,\ndh_installchangelogs\nwill first look for\n       changelog files installed by the upstream build system into\nusr/share/doc/package\n(of the package build directory) and rename\n       the most likely candidate (if any) to\nusr/share/doc/package/changelog\n.  note that\ndh_installchangelogs\ndoes\nnot\nlook into any source directory (such as\ndebian/tmp\n).\n       otherwise,\ndh_installchangelogs\n(at compatibility level 7 or any\n       later) will look for changelog files in the source directory (e.g.\n       the root or the\ndocs\nsubdirectory).  it will look for\nchangelog\n,\nchanges\nand\nhistory\noptionally with common extensions (such as\n.txt\n,\n.md\n,\n.rst\n,\n.org\n, etc.)\n\n       if a changelog file is specified and is an\nhtml\nfile (determined\n       by file extension), it will be installed as\nusr/share/doc/package/changelog.html\ninstead. if the html\n       changelog is converted to plain text, that variant can be\n       specified as a second parameter. when no plain text variant is\n       specified, a short\nusr/share/doc/package/changelog\nis generated,\n       pointing readers at the html changelog file.\n\n       the\ndebchange\n-style debian changelogs are trimmed to include only\n       entries more recent than the release date of\noldstable\n.  no\n       trimming will be performed if the\n--no-trim\noption is passed or if\n       the\ndeb_build_options\nenvironment variable contains\nnotrimdch\n.\nRelevant sections:\n- \n- \n\n---\n\nCommand: groups\nDescription: print group memberships for each username or, if no username is\n       specified, for the current process (which may differ if the groups\n       database has changed).\n--help\ndisplay this help and exit\n--version\noutput version information and exit\nRelevant sections:\n- \n\n---\n\n",
+  "response": "```markdown\nTo list all installed packages with their version numbers on a Debian-based system, you can use the `dpkg-query` command.\n\n**Command:** `dpkg-query`\n\n**Explanation:**\n`dpkg-query` is a tool for querying the dpkg database. The `-W` option is used to display package information, and you can customize the output format using the `-f` option.\n\n**Example:**\n\n```bash\ndpkg-query -W -f='${Package} ${Version}\\n'\n```\n\nThis command directly outputs the package name and version number for each installed package, separated by a space and each on a new line.  It's the most concise and efficient way to get the desired information. There is no need for any further commands or pipelines.\n",
+  "analysis": {
+    "query_analysis": {
+      "intent": "The user wants to list all installed packages and their corresponding version numbers on a Debian-based system.",
+      "keywords": [
+        "installed packages",
+        "version numbers",
+        "Debian",
+        "package list",
+        "version"
+      ],
+      "reformulated_query": "How do I list all installed packages with their version numbers on a Debian-based system like Ubuntu, and what command can I use to achieve this, ideally providing a concise output?",
+      "original_query": "Get a list of all installed packages with their version numbers (on a Debian-based system)",
+      "optimized_query": "Get a listing of all installed packages with their version numbers (on a Debian-based system)",
+      "optimization_metrics": {
+        "precision": 1.0,
+        "recall": 0,
+        "f1_score": 0,
+        "retrieval_time": 0.012166023254394531,
+        "command_count": 5,
+        "diverse_categories": 1,
+        "query_specificity": 0.65,
+        "overall_score": 0.726058365503947
+      }
+    },
+    "command_relevance": [
+      {
+        "command": "stg-version",
+        "relevance_score": 0.54
+      },
+      {
+        "command": "dpkg-name",
+        "relevance_score": 0.28
+      },
+      {
+        "command": "nproc",
+        "relevance_score": 0.24000000000000002
+      },
+      {
+        "command": "dh_installchangelogs",
+        "relevance_score": 0.24000000000000002
+      },
+      {
+        "command": "groups",
+        "relevance_score": 0.24000000000000002
+      }
+    ]
+  },
+  "command_chains": {
+    "next_commands": [
+      "mariadb-binlog",
+      "patch",
+      "dash",
+      "mariadb-dump",
+      "mariadb-show"
+    ],
+    "command_chains": [
+      "stg-version | mariadb-binlog"
+    ]
+  }
+}
