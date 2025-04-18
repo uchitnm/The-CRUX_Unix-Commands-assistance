@@ -31,4 +31,4 @@ if __name__ == '__main__':
             debug=settings.FLASK_DEBUG
         )
     else:
-        print("Failed to initialize resources. Make sure all required files exist.") 
+        print("Failed to initialize resources. Make sure all required files exist.")
