@@ -1,99 +1,94 @@
-# UNIX Command Assistant
+# Unix Commands Assistance
 
-## Overview
-The UNIX Command Assistant is a web-based application designed to help users query and understand UNIX commands. It provides detailed explanations, examples, and options for various UNIX commands, making it easier for users to perform tasks efficiently.
+## Introduction
+
+The Unix Commands Assistance is an intelligent command-line assistant that helps users find, understand, and utilize Unix commands through natural language queries. This application leverages advanced natural language processing and Generative AI techniques to interpret user queries, retrieve relevant Unix commands, and generate optimized command pipelines. Whether you're a beginner learning Unix commands or an experienced user looking for efficient command combinations, this tool provides contextual recommendations and explanations tailored to your specific tasks.
 
 ## Features
-- **Query UNIX Commands**: Enter a query to get detailed information about UNIX commands.
-- **Command Analysis**: View analysis of the query, including intent and keywords.
-- **Download Results**: Download query results in JSON format for offline use.
-- **Interactive UI**: A user-friendly interface with enhanced styling for better readability.
 
-## Project Structure
-```
-GenAI_with_GemnAI/
-├── app/
-│   ├── __init__.py
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── routes.py
-│   ├── config/
-│   │   ├── __init__.py
-│   │   ├── settings.py
-│   ├── core/
-│   │   ├── __init__.py
-│   │   ├── agent.py
-│   │   ├── data_manager.py
-│   │   ├── embeddings.py
-│   │   ├── query_optimization_algorithm.py
-│   ├── templates/
-│   │   ├── index.html
-│   ├── utils/
-│       ├── __init__.py
-├── query_results/
-├── faiss_index_metadata.csv
-├── faiss_index.bin
-├── linux_commands_tokenized.csv
-├── query_results.txt
-├── README.md
-├── run.py
-```
+### Natural Language Query Processing
+- Intelligent analysis of user queries to understand intent and extract key concepts
+- Query reformulation and optimization for better command retrieval
+- Context-aware interpretation of task requirements
+
+### Semantic Command Search
+- Powerful vector-based search using sentence transformers and FAISS indexing
+- High-precision retrieval of relevant commands based on descriptions, examples, and options
+- Efficient chunking of command documentation for granular search capabilities
+
+### Command Chain Recommendations
+- Graph-based command relationship modeling that understands I/O compatibility between commands
+- Automatic generation of efficient command pipelines for complex tasks
+- Optimization of command chains to eliminate redundancy and improve performance
+- Intelligent recommendations for subsequent commands based on current context
+
+### Command Pipeline Optimization
+- Automatic detection and application of command shorthand patterns
+- Replacement of multi-command sequences with more efficient alternatives
+- Context-aware recommendations for flags and options that enhance efficiency
+
+### Comprehensive Command Knowledge
+- Detailed information on command syntax, options, and examples
+- Category-based organization of commands (file operations, text processing, system info, etc.)
+- Command compatibility analysis for effective command chaining
 
 ## Installation
 
-### Prerequisites
-- Python 3.8 or higher
-- pip (Python package manager)
+Clone the repository:
+```
+git clone https://github.com/uchitnm/Unix-Commands-assistance.git
+cd Unix-Commands-assistance
+```
 
-### Steps
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd GenAI_with_GemnAI
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Set up environment variables:
-   - Create a `.env` file in the root directory.
-   - Add the following variables:
-     ```env
-     GEMINI_API_KEY=<your-api-key>
-     ```
-4. Run the application:
-   ```bash
-   python run.py
-   ```
+Set up a virtual environment:
+```
+python -m venv venv
+source venv/bin/activate
+
+# On Windows, use:
+venv\Scripts\activate
+```
+
+Install dependencies:
+```
+pip install -r requirements.txt
+```
+
+Download NLTK data:
+```
+python -m nltk.downloader all
+```
+
+Set up your API key:
+```
+export GEMINI_API_KEY="your api key"
+
+# On Windows, use:
+set GEMINI_API_KEY=your_api_key
+```
+Alternatively, create a `.env` file in the project root with:
+```
+GEMINI_API_KEY=your_api_key
+```
+
+## Technology Stack
+
+- Flask: Web framework
+- Google Gemini AI: Language model integration
+- NLTK: Natural language processing
+- scikit-learn & NumPy: Machine learning and data handling
+- FAISS: Fast similarity search
+- Sentence Transformers: Text embeddings
 
 ## Usage
-1. Open the application in your browser at `http://127.0.0.1:5000`.
-2. Enter a query in the input box (e.g., "how to find files modified in the last 24 hours").
-3. View the detailed response, including command descriptions, examples, and options.
-4. Download the query results if needed.
+Run the application:
+```
+python run.py
+```
+Access the web interface at http://localhost:5000 (or the port indicated in the console).
 
-## Configuration
-- **Data Files**: Located in the root directory (`linux_commands_tokenized.csv`, `faiss_index.bin`, etc.).
-- **Settings**: Modify `app/config/settings.py` for custom configurations like model settings, chunking parameters, and search parameters.
+## Requirements
 
-## Development
-### Adding New Features
-1. Add new routes in `app/api/routes.py`.
-2. Update the frontend in `app/templates/index.html`.
-3. Modify backend logic in `app/core/` as needed.
-
-### Testing
-- Use the `query_results/` directory to test query outputs.
-- Ensure all changes are tested locally before deployment.
-
-## Contributing
-Contributions are welcome! Please follow these steps:
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Submit a pull request with a detailed description of your changes.
-
-
-## Techstack
-- **FAISS**: For efficient similarity search and clustering.
-- **Flask**: For the web framework.
-- **Google GenAI**: For advanced AI capabilities.
+- Python 3.7+
+- FAISS-CPU (for MacOS) or FAISS-GPU (for systems with compatible GPUs)
+- Google Gemini API key
