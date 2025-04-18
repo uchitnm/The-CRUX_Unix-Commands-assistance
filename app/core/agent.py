@@ -3,6 +3,7 @@ from google import genai
 from google.genai import types
 from app.config import settings
 from app.core.query_optimization_algorithm import QueryOptimizer
+from app.core.command_graph import CommandGraph
 
 class AgentSystem:
     def __init__(self):
@@ -15,7 +16,55 @@ class AgentSystem:
             raise ValueError(f"Failed to initialize Gemini API: {str(e)}")
             
         self.query_optimizer = None
-    
+        self.command_graph = None
+
+    def initialize_command_graph(self, data_manager):
+        """Initialize the command graph for chain recommendations."""
+        if self.command_graph is None:
+            print("Initializing command graph...")
+            self.command_graph = CommandGraph(data_manager.commands)
+            print("Command graph initialized")
+            
+    # Add this new method to get command chain recommendations
+    def get_command_chain_recommendations(self, command_name, task_description=None):
+        """Get command chain recommendations starting with the given command."""
+        if self.command_graph is None:
+            return []
+            
+        # Get recommendations for the next command in chain
+        next_commands = self.command_graph.recommend_next_command(
+            command_name, task_description)
+            
+        # Get full chain recommendations
+        chain_recommendations = []
+        
+        # If task description is provided, find a chain for the task
+        if task_description:
+            chains = self.command_graph.find_command_chain(
+                command_name, task_description=task_description)
+            if isinstance(chains[0], list):  # Multiple chains returned
+                chain_recommendations.extend(chains)
+            else:  # Single chain returned
+                chain_recommendations.append(chains)
+        else:
+            # Get general chain recommendations
+            chains = self.command_graph.find_command_chain(command_name)
+            if chains:
+                if isinstance(chains[0], list):  # Multiple chains returned
+                    chain_recommendations.extend(chains)
+                else:  # Single chain returned
+                    chain_recommendations.append(chains)
+        
+        # Format the chains
+        formatted_chains = [
+            self.command_graph.format_command_chain(chain)
+            for chain in chain_recommendations if chain
+        ]
+        
+        return {
+            "next_commands": next_commands,
+            "command_chains": formatted_chains
+        }
     def test_connection(self):
         """Test the API connection with a simple request."""
         contents = [
@@ -231,14 +280,113 @@ class AgentSystem:
             context_parts.append("---")
         return "\n".join(context_parts)
     
+    # def response_generator_agent(self, query, analysis, context):
+    #     """Agent responsible for generating the final response to the user."""
+    #     # Extract the primary command from analysis if available
+    #     primary_command = None
+    #     if analysis and "keywords" in analysis and analysis["keywords"]:
+    #         for keyword in analysis["keywords"]:
+    #             # Look for command names in keywords
+    #             if isinstance(keyword, str) and keyword in self.command_graph.command_metadata:
+    #                 primary_command = keyword
+    #                 break
+        
+    #     # Get command chain recommendations if a primary command was identified
+    #     chain_recommendations = None
+    #     if primary_command and self.command_graph:
+    #         chain_recommendations = self.get_command_chain_recommendations(
+    #             primary_command, 
+    #             task_description=query
+    #         )
+            
+    #     # Include chain recommendations in the prompt if available
+    #     chain_info = ""
+    #     if chain_recommendations and chain_recommendations.get("command_chains"):
+    #         chain_info = """
+    #         Command Chain Recommendations:
+    #         The following command chains might be useful for this task:
+    #         """
+    #         for i, chain in enumerate(chain_recommendations.get("command_chains", [])[:3], 1):
+    #             chain_info += f"{i}. {chain}\n"
+                
+    #     prompt = f"""
+    #     You are a UNIX Command Assistant. Your role is to:
+    #     1. Provide clear, helpful explanations of UNIX commands
+    #     2. Respond directly to the user's query using the provided context
+    #     3. Focus on the most relevant command(s) for the user's need
+    #     4. Include practical examples that address the specific use case
+        
+    #     User Query: {query}
+        
+    #     Query Analysis: {json.dumps(analysis)}
+        
+    #     Context Information:
+    #     {context}
+        
+    #     {chain_info}
+        
+    #     Based on the above information, provide a clear, concise response that directly answers the user's query. Include:
+    #     1. The most appropriate command(s) for their need
+    #     2. A brief explanation of how the command works
+    #     3. 1-2 specific examples tailored to their use case
+    #     4. Any relevant flags or options they should know about
+        
+    #     If command chain recommendations are available, include a section titled "Command Chaining" that explains how the commands can be chained together using pipes to accomplish more complex tasks. Show 1-2 examples of these chains.
+        
+    #     Format your response in an easy-to-read way with markdown formatting.
+    #     """
+        
+    #     contents = [
+    #         types.Content(
+    #             role="user",
+    #             parts=[types.Part.from_text(text=prompt)],
+    #         ),
+    #     ]
+        
+    #     response = self.client.models.generate_content(
+    #         model=settings.GEMINI_MODEL,
+    #         contents=contents,
+    #         config=settings.GEMINI_CONFIG,
+    #     )
+        
+    #     return response.text
+    # In agent.py, modify the response_generator_agent method:
+
     def response_generator_agent(self, query, analysis, context):
         """Agent responsible for generating the final response to the user."""
+        # Extract the primary command from analysis if available
+        primary_command = None
+        if analysis and "keywords" in analysis and analysis["keywords"]:
+            for keyword in analysis["keywords"]:
+                # Look for command names in keywords
+                if isinstance(keyword, str) and keyword in self.command_graph.command_metadata:
+                    primary_command = keyword
+                    break
+        
+        # Get command chain recommendations if a primary command was identified
+        chain_recommendations = None
+        if primary_command and self.command_graph:
+            chain_recommendations = self.get_command_chain_recommendations(
+                primary_command, 
+                task_description=query
+            )
+            
+        # Include chain recommendations in the prompt if available
+        chain_info = ""
+        if chain_recommendations and chain_recommendations.get("command_chains"):
+            chain_info = """
+            Command Chain Recommendations:
+            The following command chains might be useful for this task:
+            """
+            for i, chain in enumerate(chain_recommendations.get("command_chains", [])[:3], 1):
+                chain_info += f"{i}. {chain}\n"
+                
         prompt = f"""
-        You are a UNIX Command Assistant. Your role is to:
+        You are a UNIX Command Assistant focused on generating concise, efficient command pipelines. Your role is to:
         1. Provide clear, helpful explanations of UNIX commands
-        2. Respond directly to the user's query using the provided context
-        3. Focus on the most relevant command(s) for the user's need
-        4. Include practical examples that address the specific use case
+        2. Create the SHORTEST possible pipeline commands to accomplish tasks
+        3. Eliminate unnecessary commands and use built-in options when available
+        4. Focus on practical, minimal examples that address the user's need
         
         User Query: {query}
         
@@ -247,13 +395,21 @@ class AgentSystem:
         Context Information:
         {context}
         
+        {chain_info}
+        
         Based on the above information, provide a clear, concise response that directly answers the user's query. Include:
         1. The most appropriate command(s) for their need
         2. A brief explanation of how the command works
-        3. 1-2 specific examples tailored to their use case
-        4. Any relevant flags or options they should know about
+        3. 1-2 MINIMAL pipeline examples tailored to their use case (use the fewest commands possible)
+        4. Essential flags or options that make the command more efficient
         
-        Format your response in an easy-to-read way with markdown formatting.
+        If command chain recommendations are available, optimize them to be as concise as possible. For example:
+        - Replace 'cat file | grep pattern' with 'grep pattern file'
+        - Replace 'grep pattern | wc -l' with 'grep -c pattern'
+        - Use 'sort -u' instead of 'sort | uniq'
+        - Use command options instead of chaining with additional commands when possible
+        
+        Format your response in an easy-to-read way with markdown formatting. Keep your explanation brief but complete.
         """
         
         contents = [
@@ -269,4 +425,4 @@ class AgentSystem:
             config=settings.GEMINI_CONFIG,
         )
         
-        return response.text 
+        return response.text
