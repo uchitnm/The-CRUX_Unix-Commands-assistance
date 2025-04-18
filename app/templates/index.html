@@ -4,447 +4,1032 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNIX Command Assistant</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #2ecc71;
-            --text-color: #333;
-            --light-gray: #f5f5f5;
-            --border-color: #ddd;
+            --primary-bg: #1e1e1e;
+            --secondary-bg: #252526;
+            --text-primary: #d4d4d4;
+            --text-secondary: #8a8a8a;
+            --accent-blue: #569cd6;
+            --accent-green: #6a9955;
+            --border-color: #404040;
+            --code-bg: #1e1e1e;
+            --heading-color: #569cd6;
+            --link-color: #4ec9b0;
+            --spinner-size: 40px;
+            --spinner-border-width: 4px;
+            --spinner-color: var(--accent-blue);
+            --animation-duration: 0.8s;
+            --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--light-gray);
-            color: var(--text-color);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: var(--primary-bg);
+            color: var(--text-primary);
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-            margin-bottom: 30px;
+            background: var(--secondary-bg);
+            padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            animation: containerFadeIn 1s ease-out;
         }
 
-        h1 {
-            margin: 0;
-            font-size: 2.2em;
-            font-weight: 700;
+        @keyframes containerFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        header p {
-            margin: 10px 0 0;
-            font-size: 1.1em;
-            opacity: 0.9;
+        /* Headers */
+        h1, h2, h3, h4 {
+            color: var(--heading-color);
+            font-weight: 600;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
         }
 
-        .query-form {
+        h3 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3em;
+        }
+
+        /* Code blocks */
+        pre[class*="language-"] {
+            background: var(--code-bg) !important;
+            border-radius: 6px;
+            margin: 1em 0;
+            padding: 1em;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            position: relative;
+            padding-top: 2.5rem;
+        }
+
+        /* Inline code */
+        :not(pre) > code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            color: var(--accent-blue);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Lists */
+        ul, ol {
+            padding-left: 1.5em;
+            margin: 1em 0;
+        }
+
+        li {
+            margin: 0.5em 0;
+            color: var(--text-primary);
+        }
+
+        /* Input section */
+        .query-section {
+            margin: 2em 0;
             display: flex;
-            margin-bottom: 30px;
-            gap: 10px;
+            gap: 1em;
         }
 
         .query-input {
             flex: 1;
-            padding: 12px 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
+            padding: 12px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .query-input:focus {
             outline: none;
-            border-color: var(--secondary-color);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(86, 156, 214, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(86, 156, 214, 0.2);
         }
 
-        .submit-btn {
-            padding: 12px 25px;
-            background-color: var(--primary-color);
+        .button {
+            padding: 12px 24px;
+            background: var(--accent-blue);
             color: white;
             border: none;
             border-radius: 6px;
-            cursor: pointer;
             font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.3s;
-        }
-
-        .submit-btn:hover {
-            background-color: #1a252f;
-        }
-
-        .response-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .command-response {
-            margin-bottom: 25px;
-        }
-
-        .command-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .command-name {
-            font-size: 1.4em;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-right: 15px;
-        }
-
-        .command-description {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-
-        .examples-section {
-            background-color: var(--light-gray);
-            border-radius: 6px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .examples-section h3 {
-            color: var(--primary-color);
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-
-        .code-block {
-            background-color: #2c3e50;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 6px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.9em;
-            margin: 10px 0;
-            overflow-x: auto;
-        }
-
-        .options-section {
-            margin: 20px 0;
-        }
-
-        .options-section h3 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-
-        .option-item {
-            margin-bottom: 10px;
-            padding-left: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
             position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 1;
         }
 
-        .option-item::before {
-            content: "•";
-            color: var(--secondary-color);
+        .button:hover {
+            background: #4a8bc6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .button::before {
+            content: '';
             position: absolute;
-            left: 0;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: transform 0.5s ease;
+            z-index: -1;
         }
 
-        .warning-section {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 0 6px 6px 0;
+        .button:hover::before {
+            transform: translateX(100%);
         }
 
-        .warning-section h3 {
-            color: #856404;
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
+        /* Loading state */
         .loading {
-            text-align: center;
-            padding: 30px;
             display: none;
+            text-align: center;
+            padding: 2em;
+            color: var(--text-secondary);
+        }
+
+        .spinner-container {
+            display: inline-block;
+            position: relative;
+            margin-bottom: 1em;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
+            width: var(--spinner-size);
+            height: var(--spinner-size);
+            border: var(--spinner-border-width) solid var(--border-color);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            border-top-color: var(--spinner-color);
+            animation: spinner-grow 0.6s ease-in-out infinite;
+            position: relative;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes spinner-grow {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
         }
 
+        .loading-text {
+            display: block;
+            margin-top: 1em;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            animation: dots 1.4s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: "Processing"; }
+            40% { content: "Processing."; }
+            60% { content: "Processing.."; }
+            80%, 100% { content: "Processing..."; }
+        }
+
+        /* Response section */
+        .response {
+            opacity: 0;
+            transition: opacity 0.3s;
+            line-height: 1.6;
+        }
+
+        .response.visible {
+            opacity: 1;
+        }
+
+        /* Query Analysis Section */
         .analysis-toggle {
-            background-color: var(--light-gray);
-            padding: 12px 20px;
-            border-radius: 6px;
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 1em 0;
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
             cursor: pointer;
-            margin-top: 25px;
-            font-weight: 500;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
         }
 
         .analysis-toggle:hover {
-            background-color: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .analysis-details {
-            padding: 20px;
+            display: none;
+            background: var(--code-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            margin-top: 15px;
-            display: none;
-            background-color: white;
+            padding: 1em;
+            margin: 1em 0;
         }
 
         .analysis-details pre {
+            margin: 0;
             white-space: pre-wrap;
-            background-color: var(--light-gray);
-            padding: 15px;
-            border-radius: 6px;
-            overflow: auto;
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.9em;
         }
 
+        /* Download Button Section */
         .download-section {
-            margin-top: 25px;
-            text-align: center;
+            margin-top: 2em;
+            text-align: right;
         }
 
         .download-btn {
-            background-color: var(--success-color);
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.3s;
+            background: var(--accent-green);
+            transition: all 0.3s ease;
         }
 
         .download-btn:hover {
-            background-color: #27ae60;
+            background: #588149;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        .error {
-            color: #e74c3c;
-            background-color: #fde8e8;
-            padding: 15px;
+        .download-btn:hover svg {
+            animation: bounce 0.5s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Title Animation */
+        @keyframes titleSlideIn {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes subtitleFadeIn {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            margin-bottom: 2em;
+            animation: slideInDown var(--animation-duration) var(--animation-timing);
+        }
+
+        header h1 {
+            color: var(--heading-color);
+            font-size: 2.8em;
+            margin: 0;
+            margin-bottom: 0.2em;
+            animation: titleSlideIn 1s ease-out;
+            transition: transform 0.3s ease;
+        }
+
+        header h1:hover {
+            transform: scale(1.05);
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.2em;
+            margin: 0;
+            opacity: 0;
+            animation: subtitleFadeIn 1s ease-out 0.5s forwards;
+        }
+
+        /* Query Section */
+        .query-section {
+            opacity: 0;
+            animation: scaleIn 0.6s var(--animation-timing) 0.5s forwards;
+            margin: 2em auto;
+            max-width: 700px;
+            display: flex;
+            gap: 1em;
+        }
+
+        /* Download Button and Controls Section */
+        .controls-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2em 0;
+            gap: 1em;
+        }
+
+        .download-btn {
+            background: var(--accent-green);
+            color: white;
+            padding: 0.8em 1.5em;
+            border: none;
             border-radius: 6px;
-            margin: 20px 0;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .download-btn.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.3s var(--animation-timing);
+        }
+
+        .download-btn:hover {
+            background: #588149;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Analysis Toggle Button */
+        .analysis-toggle {
+            background: var(--code-bg);
+            color: var(--text-primary);
+            padding: 0.8em 1.5em;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+        }
+
+        .analysis-toggle:hover {
+            border-color: var(--accent-blue);
+            background: var(--secondary-bg);
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 2em;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .spinner-container {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .spinner {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            animation: spinner 1.2s linear infinite;
+        }
+
+        .spinner:nth-child(1) { animation-delay: 0s; transform: rotate(0deg) translate(30px); }
+        .spinner:nth-child(2) { animation-delay: -0.1s; transform: rotate(30deg) translate(30px); }
+        .spinner:nth-child(3) { animation-delay: -0.2s; transform: rotate(60deg) translate(30px); }
+        .spinner:nth-child(4) { animation-delay: -0.3s; transform: rotate(90deg) translate(30px); }
+        .spinner:nth-child(5) { animation-delay: -0.4s; transform: rotate(120deg) translate(30px); }
+        .spinner:nth-child(6) { animation-delay: -0.5s; transform: rotate(150deg) translate(30px); }
+        .spinner:nth-child(7) { animation-delay: -0.6s; transform: rotate(180deg) translate(30px); }
+        .spinner:nth-child(8) { animation-delay: -0.7s; transform: rotate(210deg) translate(30px); }
+        .spinner:nth-child(9) { animation-delay: -0.8s; transform: rotate(240deg) translate(30px); }
+        .spinner:nth-child(10) { animation-delay: -0.9s; transform: rotate(270deg) translate(30px); }
+        .spinner:nth-child(11) { animation-delay: -1s; transform: rotate(300deg) translate(30px); }
+        .spinner:nth-child(12) { animation-delay: -1.1s; transform: rotate(330deg) translate(30px); }
+
+        @keyframes spinner {
+            0% { opacity: 1; }
+            100% { opacity: 0.15; }
+        }
+
+        /* Welcome Animation */
+        .welcome-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--primary-bg);
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .welcome-text {
+            font-size: 2.5em;
+            color: var(--text-primary);
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.1em;
+            border-right: 0.15em solid var(--accent-blue);
+            animation: typing 3.5s steps(40, end),
+                       blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--accent-blue) }
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Analysis Section */
+        .analysis-section {
+            margin: 2em 0;
+            display: none;
+        }
+
+        .analysis-section.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .analysis-toggle {
+            width: 100%;
+            padding: 1em;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .analysis-toggle:hover {
+            background: var(--code-bg);
+        }
+
+        .analysis-toggle .icon {
+            transition: transform 0.3s ease;
+        }
+
+        .analysis-toggle[aria-expanded="true"] .icon {
+            transform: rotate(180deg);
+        }
+
+        .analysis-content {
+            padding: 1em;
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 6px 6px;
+            margin-top: -1px;
+        }
+
+        /* Error Popup */
+        .error-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1em 2em;
+            background: #ff4444;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .error-popup.show {
+            transform: translateX(0);
+        }
+
+        /* Controls Section */
+        .controls-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2em;
+            margin: 2em auto;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Common Button Styles */
+        .control-btn {
+            padding: 0.8em 1.5em;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Analysis Button */
+        .analysis-section {
+            margin: 0;
+            flex: 0 1 auto;
+        }
+
+        .analysis-toggle {
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 0.8em 1.5em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+        }
+
+        .analysis-toggle:hover {
+            background: var(--code-bg);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .analysis-toggle .icon {
+            transition: transform 0.3s ease;
+        }
+
+        .analysis-toggle[aria-expanded="true"] .icon {
+            transform: rotate(180deg);
+        }
+
+        /* Download Button */
+        .download-btn {
+            background: var(--accent-green);
+            color: white;
+            padding: 0.8em 1.5em;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .download-btn.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .download-btn:hover {
+            background: #588149;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Copy Button Styles */
+        .code-wrapper {
+            position: relative;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--accent-blue);
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .code-wrapper:hover .copy-button {
+            opacity: 1;
+        }
+
+        .copy-button:hover {
+            background: #4a8bc6;
+            transform: translateY(-1px);
+        }
+
+        .copy-button.copied {
+            background: var(--accent-green);
         }
     </style>
 </head>
 <body>
+    <!-- Welcome Animation -->
+    <div class="welcome-container" id="welcomeScreen">
+        <div class="welcome-text">Welcome to UNIX Command Assistant</div>
+    </div>
+
     <div class="container">
         <header>
             <h1>UNIX Command Assistant</h1>
             <p>Ask about any UNIX command or task</p>
         </header>
-        
-        <div class="query-form">
-            <input type="text" id="query-input" class="query-input" placeholder="E.g., how to find files modified in the last 24 hours" autofocus>
-            <button id="submit-btn" class="submit-btn">Ask</button>
+
+        <!-- Error Popup -->
+        <div class="error-popup" id="errorPopup">
+            Please enter a query first
         </div>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Processing your query...</p>
+
+        <div class="query-section">
+            <input type="text" id="queryInput" class="query-input" 
+                   placeholder="E.g., how to find files modified in the last 24 hours">
+            <button id="submitButton" class="button">Ask</button>
         </div>
-        
-        <div class="response-container" id="response-container" style="display:none;">
-            <div id="response-content"></div>
-            
-            <div class="analysis-toggle" id="analysis-toggle">
-                Show Query Analysis
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
+                <div class="spinner"></div>
             </div>
-            <div class="analysis-details" id="analysis-details">
-                <pre id="analysis-content"></pre>
+            <p class="loading-text">Processing query...</p>
+        </div>
+
+        <div id="response" class="response"></div>
+
+        <!-- Bootstrap Collapse for Analysis -->
+        <div class="analysis-section" id="analysisSection">
+            <button class="analysis-toggle" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#analysisContent" 
+                    aria-expanded="false" 
+                    aria-controls="analysisContent">
+                Query Analysis
+                <svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+            </button>
+            <div class="collapse" id="analysisContent">
+                <div class="analysis-content">
+                    <pre id="analysis-content"></pre>
+                </div>
             </div>
-            
-            <div class="download-section">
-                <button id="download-btn" class="download-btn">
-                    Download Query Results
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <div class="analysis-section">
+                <button class="analysis-toggle" 
+                        type="button" 
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#analysisContent" 
+                        aria-expanded="false" 
+                        aria-controls="analysisContent">
+                    Query Analysis
+                    <svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                    </svg>
                 </button>
+                <div class="collapse" id="analysisContent">
+                    <div class="analysis-content">
+                        <pre id="analysis-content"></pre>
+                    </div>
+                </div>
             </div>
+
+            <button id="download-btn" class="download-btn control-btn" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 12L3 7H6V1H10V7H13L8 12Z"/>
+                    <path d="M14 14H2V11H0V15H16V11H14V14Z"/>
+                </svg>
+                Download Results
+            </button>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const queryInput = document.getElementById('query-input');
-            const submitBtn = document.getElementById('submit-btn');
-            const loading = document.getElementById('loading');
-            const responseContainer = document.getElementById('response-container');
-            const responseContent = document.getElementById('response-content');
-            const analysisToggle = document.getElementById('analysis-toggle');
-            const analysisDetails = document.getElementById('analysis-details');
-            const analysisContent = document.getElementById('analysis-content');
+        const queryInput = document.getElementById('queryInput');
+        const submitButton = document.getElementById('submitButton');
+        const loading = document.getElementById('loading');
+        const responseDiv = document.getElementById('response');
+        const analysisSection = document.getElementById('analysisSection');
+        const analysisContent = document.getElementById('analysis-content');
+        const downloadBtn = document.getElementById('download-btn');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+
+        // Welcome animation handling
+        setTimeout(() => {
+            welcomeScreen.classList.add('fade-out');
+        }, 4000); // Remove welcome screen after animation
+
+        // Show welcome screen again when page is refreshed
+        window.onbeforeunload = () => {
+            welcomeScreen.classList.remove('fade-out');
+        };
+
+        function markdownToHtml(markdown) {
+            let html = markdown;
             
-            let currentQueryId = null;
+            // Convert headers
+            html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
             
-            // Function to submit query
-            async function submitQuery() {
-                const query = queryInput.value.trim();
-                if (!query) return;
-                
-                // Show loading
-                loading.style.display = 'block';
-                responseContainer.style.display = 'none';
-                
-                try {
-                    const response = await fetch('/api/query', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ query })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (data.error) {
-                        responseContent.innerHTML = `<p class="error">${data.error}</p>`;
-                    } else {
-                        // Convert markdown to HTML with enhanced styling
-                        const markdownToHtml = (markdown) => {
-                            let html = markdown;
-                            
-                            // Handle command sections
-                            html = html.replace(/\*\*Command:\*\* `(.*?)`/g, 
-                                '<div class="command-header"><span class="command-name">$1</span></div>');
-                            
-                            // Handle descriptions
-                            html = html.replace(/\*\*Description:\*\* (.*?)(?=\n\*\*|\n\n|$)/gs, 
-                                '<div class="command-description">$1</div>');
-                            
-                            // Handle examples section
-                            html = html.replace(/\*\*Examples?:\*\*\n([\s\S]*?)(?=\n\*\*|\n\n|$)/g,
-                                '<div class="examples-section"><h3>Examples</h3>$1</div>');
-                            
-                            // Handle code blocks
-                            html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, 
-                                '<div class="code-block">$2</div>');
-                            
-                            // Handle options section
-                            html = html.replace(/\*\*Options:\*\*\n([\s\S]*?)(?=\n\*\*|\n\n|$)/g,
-                                '<div class="options-section"><h3>Options</h3>$1</div>');
-                            
-                            // Handle warning sections
-                            html = html.replace(/\*\*Warning:\*\*\n([\s\S]*?)(?=\n\*\*|\n\n|$)/g,
-                                '<div class="warning-section"><h3>Warning</h3>$1</div>');
-                            
-                            // Handle bold text
-                            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                            
-                            // Handle italic text
-                            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                            
-                            // Handle lists
-                            html = html.replace(/^\s*\*\s(.*)$/gm, '<div class="option-item">$1</div>');
-                            
-                            // Handle paragraphs
-                            html = html.split('\n\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
-                            
-                            return html;
-                        };
-                        
-                        responseContent.innerHTML = markdownToHtml(data.response);
-                        
-                        // Show analysis data
-                        analysisContent.textContent = JSON.stringify(data.analysis, null, 2);
-                        
-                        // Store current query ID
-                        currentQueryId = data.query_id;
-                        
-                        // Show download button
-                        document.getElementById('download-btn').style.display = 'block';
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    responseContent.innerHTML = '<p class="error">An error occurred while processing your query. Please try again.</p>';
-                } finally {
-                    // Hide loading, show response
-                    loading.style.display = 'none';
-                    responseContainer.style.display = 'block';
-                }
+            // Convert code blocks with language
+            html = html.replace(/```bash\n([\s\S]*?)```/g, (match, code) => {
+                const highlighted = Prism.highlight(
+                    code.trim(),
+                    Prism.languages.bash,
+                    'bash'
+                );
+                return `<pre class="language-bash"><code class="language-bash">${highlighted}</code></pre>`;
+            });
+            
+            // Convert inline code
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+            
+            // Convert bullet points with nested support
+            html = html.replace(/^(\s*)[*-] (.*$)/gm, (match, indent, content) => {
+                const depth = indent.length;
+                return `<li class="indent-${depth}">${content}</li>`;
+            });
+            html = html.replace(/(<li[^>]*>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+            
+            // Convert paragraphs (skip already converted elements)
+            html = html.split('\n\n').map(p => {
+                if (!p.trim()) return '';
+                if (p.startsWith('<')) return p;
+                return `<p>${p.trim()}</p>`;
+            }).join('\n');
+            
+            return html;
+        }
+
+        function updateLoadingText() {
+            const loadingText = document.querySelector('.loading-text');
+            let dots = 0;
+            
+            return setInterval(() => {
+                dots = (dots + 1) % 4;
+                loadingText.textContent = 'Processing' + '.'.repeat(dots);
+            }, 350);
+        }
+
+        function showError(message) {
+            const errorPopup = document.getElementById('errorPopup');
+            errorPopup.textContent = message;
+            errorPopup.classList.add('show');
+            
+            setTimeout(() => {
+                errorPopup.classList.remove('show');
+            }, 3000);
+        }
+
+        async function handleSubmit() {
+            const query = queryInput.value.trim();
+            if (!query) {
+                showError('Please enter a query first');
+                return;
             }
-            
-            // Event listeners
-            submitBtn.addEventListener('click', submitQuery);
-            queryInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    submitQuery();
-                }
-            });
-            
-            // Toggle analysis details
-            analysisToggle.addEventListener('click', function() {
-                if (analysisDetails.style.display === 'block') {
-                    analysisDetails.style.display = 'none';
-                    analysisToggle.textContent = 'Show Query Analysis';
+
+            // Hide welcome screen immediately if still visible
+            welcomeScreen.classList.add('fade-out');
+
+            loading.style.display = 'block';
+            responseDiv.classList.remove('visible');
+            responseDiv.innerHTML = '';
+            analysisSection.style.display = 'none';
+            downloadBtn.style.display = 'none';
+
+            const loadingInterval = updateLoadingText();
+
+            try {
+                const response = await fetch('/api/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    responseDiv.innerHTML = `<div class="error">${data.error}</div>`;
                 } else {
-                    analysisDetails.style.display = 'block';
-                    analysisToggle.textContent = 'Hide Query Analysis';
+                    responseDiv.innerHTML = markdownToHtml(data.response);
+                    analysisContent.textContent = JSON.stringify(data.analysis, null, 2);
+                    currentQueryId = data.query_id;
+                    
+                    // Show analysis section after response
+                    analysisSection.style.display = 'block';
+                    showDownloadButton();
                 }
-            });
-            
-            // Add download button functionality
-            document.getElementById('download-btn').addEventListener('click', async () => {
-                if (!currentQueryId) return;
+
+                // Highlight code blocks
+                Prism.highlightAll();
+
+                // Fade in the response
+                setTimeout(() => {
+                    responseDiv.classList.add('visible');
+                }, 10);
                 
-                try {
-                    const response = await fetch(`/api/download/${currentQueryId}`);
-                    if (response.ok) {
-                        const blob = await response.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `${currentQueryId}.json`;
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        document.body.removeChild(a);
-                    } else {
-                        const error = await response.json();
-                        alert(`Error downloading results: ${error.error}`);
-                    }
-                } catch (error) {
-                    alert(`Error downloading results: ${error.message}`);
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="error">An error occurred: ${error.message}</div>`;
+            } finally {
+                clearInterval(loadingInterval);
+                loading.style.display = 'none';
+            }
+        }
+
+        // Event listeners
+        submitButton.addEventListener('click', handleSubmit);
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSubmit();
+        });
+
+        // Download button
+        downloadBtn.addEventListener('click', async () => {
+            if (currentQueryId) {
+                window.location.href = `/api/download/${currentQueryId}`;
+            }
+        });
+
+        function showDownloadButton() {
+            downloadBtn.style.display = 'flex';
+            setTimeout(() => downloadBtn.classList.add('visible'), 10);
+        }
+
+        // Enhanced welcome screen handling
+        document.addEventListener('DOMContentLoaded', () => {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const container = document.querySelector('.container');
+            
+            // Initially hide the main container
+            container.style.opacity = '0';
+            
+            // After welcome animation
+            setTimeout(() => {
+                welcomeScreen.classList.add('fade-out');
+                container.style.opacity = '1';
+            }, 4000);
+
+            // Remove welcome screen after fade out
+            welcomeScreen.addEventListener('transitionend', () => {
+                if (welcomeScreen.classList.contains('fade-out')) {
+                    welcomeScreen.style.display = 'none';
                 }
             });
         });
+
+        // Copy button functionality
+        function createCopyButtons() {
+            document.querySelectorAll('pre').forEach(pre => {
+                // Create wrapper if not already present
+                if (!pre.parentElement.classList.contains('code-wrapper')) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'code-wrapper';
+                    pre.parentNode.insertBefore(wrapper, pre);
+                    wrapper.appendChild(pre);
+                }
+
+                const button = document.createElement('button');
+                button.className = 'copy-button';
+                button.textContent = 'Copy';
+                
+                button.addEventListener('click', async () => {
+                    // Get text content from pre
+                    const code = pre.querySelector('code') || pre;
+                    const text = code.textContent;
+
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        button.textContent = 'Copied!';
+                        button.classList.add('copied');
+
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text:', err);
+                        button.textContent = 'Failed to copy';
+                        
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    }
+                });
+
+                pre.parentElement.appendChild(button);
+            });
+        }
+
+        // Add copy buttons when markdown is converted
+        const originalMarkdownToHtml = markdownToHtml;
+        markdownToHtml = function(markdown) {
+            const html = originalMarkdownToHtml(markdown);
+            setTimeout(createCopyButtons, 0);
+            return html;
+        };
+
+        // Also add copy buttons to any existing code blocks
+        document.addEventListener('DOMContentLoaded', createCopyButtons);
     </script>
 </body>
 </html>
