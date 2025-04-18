@@ -1,0 +1,9 @@
+google-genai
+flask
+python-dotenv
+nltk
+pandas
+numpy
+scikit-learn
+faiss-cpu
+sentence_transformers
