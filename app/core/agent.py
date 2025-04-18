@@ -3,6 +3,7 @@ from google import genai
 from google.genai import types
 from app.config import settings
 from app.core.query_optimization_algorithm import QueryOptimizer
+from app.core.command_graph import CommandGraph
 
 class AgentSystem:
     def __init__(self):
@@ -15,7 +16,55 @@ class AgentSystem:
             raise ValueError(f"Failed to initialize Gemini API: {str(e)}")
             
         self.query_optimizer = None
-    
+        self.command_graph = None
+
+    def initialize_command_graph(self, data_manager):
+        """Initialize the command graph for chain recommendations."""
+        if self.command_graph is None:
+            print("Initializing command graph...")
+            self.command_graph = CommandGraph(data_manager.commands)
+            print("Command graph initialized")
+            
+    # Add this new method to get command chain recommendations
+    def get_command_chain_recommendations(self, command_name, task_description=None):
+        """Get command chain recommendations starting with the given command."""
+        if self.command_graph is None:
+            return []
+            
+        # Get recommendations for the next command in chain
+        next_commands = self.command_graph.recommend_next_command(
+            command_name, task_description)
+            
+        # Get full chain recommendations
+        chain_recommendations = []
+        
+        # If task description is provided, find a chain for the task
+        if task_description:
+            chains = self.command_graph.find_command_chain(
+                command_name, task_description=task_description)
+            if isinstance(chains[0], list):  # Multiple chains returned
+                chain_recommendations.extend(chains)
+            else:  # Single chain returned
+                chain_recommendations.append(chains)
+        else:
+            # Get general chain recommendations
+            chains = self.command_graph.find_command_chain(command_name)
+            if chains:
+                if isinstance(chains[0], list):  # Multiple chains returned
+                    chain_recommendations.extend(chains)
+                else:  # Single chain returned
+                    chain_recommendations.append(chains)
+        
+        # Format the chains
+        formatted_chains = [
+            self.command_graph.format_command_chain(chain)
+            for chain in chain_recommendations if chain
+        ]
+        
+        return {
+            "next_commands": next_commands,
+            "command_chains": formatted_chains
+        }
     def test_connection(self):
         """Test the API connection with a simple request."""
         contents = [
@@ -233,29 +282,71 @@ class AgentSystem:
     
     def response_generator_agent(self, query, analysis, context):
         """Agent responsible for generating the final response to the user."""
-        prompt = f"""
-        You are a UNIX Command Assistant. Your role is to:
-        1. Provide clear, helpful explanations of UNIX commands
-        2. Respond directly to the user's query using the provided context
-        3. Focus on the most relevant command(s) for the user's need
-        4. Include practical examples that address the specific use case
+        # Extract the primary command from analysis if available
+        primary_command = None
+        if analysis and "keywords" in analysis and analysis["keywords"]:
+            for keyword in analysis["keywords"]:
+                if isinstance(keyword, str) and keyword in self.command_graph.command_metadata:
+                    primary_command = keyword
+                    break
         
-        User Query: {query}
+        # Get command chain recommendations
+        chain_recommendations = None
+        if primary_command and self.command_graph:
+            chain_recommendations = self.get_command_chain_recommendations(
+                primary_command, 
+                task_description=query
+            )
         
-        Query Analysis: {json.dumps(analysis)}
-        
-        Context Information:
-        {context}
-        
-        Based on the above information, provide a clear, concise response that directly answers the user's query. Include:
-        1. The most appropriate command(s) for their need
-        2. A brief explanation of how the command works
-        3. 1-2 specific examples tailored to their use case
-        4. Any relevant flags or options they should know about
-        
-        Format your response in an easy-to-read way with markdown formatting.
-        """
-        
+        # Format chain recommendations in markdown
+        chain_info = ""
+        if chain_recommendations and chain_recommendations.get("command_chains"):
+            chain_info = "\n### Command Chains\n\n"
+            chain_info += "The following command chains might be useful:\n\n"
+            for chain in chain_recommendations.get("command_chains", [])[:3]:
+                chain_info += f"```bash\n{chain}\n```\n"
+                
+        prompt = f'''
+You are a UNIX Command Assistant. Format your response using strict markdown structure:
+
+### Command Overview
+Brief description of the command's purpose and functionality.
+
+### Syntax
+```bash
+command [options] arguments
+```
+
+### Key Options
+- `-option`: Description
+- `--long-option`: Description
+
+### Examples
+```bash
+# Example 1: Basic usage
+command -option value
+
+# Example 2: Advanced usage
+command --long-option value
+```
+
+### Notes
+Important considerations or warnings
+
+{chain_info}
+
+Based on the query: "{query}"
+Context: {context}
+
+Remember to:
+1. Use proper heading levels (###)
+2. Wrap all commands in `backticks`
+3. Use ```bash for code blocks
+4. Use bullet points with - for lists
+5. Keep explanations clear and concise
+6. Add descriptive comments in code examples
+'''
+
         contents = [
             types.Content(
                 role="user",
@@ -269,4 +360,9 @@ class AgentSystem:
             config=settings.GEMINI_CONFIG,
         )
         
-        return response.text 
+        # Clean and format the response
+        response_text = response.text.strip()
+        if not response_text.startswith("### "):
+            response_text = "### Command Overview\n" + response_text
+        
+        return response_text
