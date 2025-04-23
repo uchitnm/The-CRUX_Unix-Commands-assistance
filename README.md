@@ -93,6 +93,13 @@ Access the web interface at http://localhost:5000 (or the port indicated in the 
 - FAISS-CPU (for MacOS) or FAISS-GPU (for systems with compatible GPUs)
 - Google Gemini API key
 
+## Demo
+### Demo Video
+
+Watch the demo video to see the Unix Commands Assistance in action:
+[![Unix Commands Assistance Demo](https://img.youtube.com/vi/actual_video_id/0.jpg)](https://example.com/demo.mp4)
+
+
 ## License
 
 The CRUX is licensed under the GNU Lesser General Public License v2.1 (LGPL-2.1). This means:
