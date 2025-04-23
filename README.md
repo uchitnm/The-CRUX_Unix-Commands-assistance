@@ -94,10 +94,8 @@ Access the web interface at http://localhost:5000 (or the port indicated in the 
 - Google Gemini API key
 
 ## Demo
-### Demo Video
-
 Watch the demo video to see the Unix Commands Assistance in action:
-[![Unix Commands Assistance Demo](https://img.youtube.com/vi/actual_video_id/0.jpg)](https://example.com/demo.mp4)
+[![Unix Commands Assistance Demo](demo-thumbnail.png)](demo.mp4)
 
 
 ## License
