@@ -92,3 +92,14 @@ Access the web interface at http://localhost:5000 (or the port indicated in the 
 - Python 3.7+
 - FAISS-CPU (for MacOS) or FAISS-GPU (for systems with compatible GPUs)
 - Google Gemini API key
+
+## License
+
+The CRUX is licensed under the GNU Lesser General Public License v2.1 (LGPL-2.1). This means:
+
+- You are free to use, modify, and distribute this software
+- If you modify the software, you must distribute your modifications under the LGPL-2.1
+- You can link to this software from other programs, including proprietary ones
+- The complete license text can be found in the LICENSE file
+
+For more details, see the [GNU Lesser General Public License v2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html).
