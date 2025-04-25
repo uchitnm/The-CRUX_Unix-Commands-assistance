@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "timestamp": "2025-04-25_18-01-52",
+    "query_id": "query_2025-04-25_18-01-52",
+    "original_query": "How do I list files in Windows command prompt?",
+    "query_type": "windows_command",
+    "platform": "Windows"
+  },
+  "response": "### Command Overview\nThe `dir` command lists the files and subdirectories in a directory. It provides information such as file names, dates of last modification, file sizes, and directory names.\n\n### Syntax\n```cmd\ndir [drive:][path][filename] [/A[[:]attributes]] [/B] [/C] [/D] [/L] [/N]\n    [/O[[:]sortorder]] [/P] [/Q] [/R] [/S] [/T[[:]timefield]] [/W]\n    [/X] [/4]\n```\n\n### Key Options\n- `/A[:]attributes`: Displays files with specified attributes.  For example, `/AH` shows hidden files, `/AD` shows directories. Attributes include: D (Directories), R (Read-only files), H (Hidden files), A (Files ready for archiving), S (System files), I (Not content indexed files), L (Reparse Points), - (Prefix meaning 'not').  Combine attributes for more complex filtering (e.g., `/A:HD` shows hidden directories).\n- `/B`: Uses bare format (no heading information or summary).\n- `/S`: Displays files in specified directory and all subdirectories.\n\n### Examples\n```cmd\n# Example 1: List all files and directories in the current directory\ndir\n\n# Example 2: List all files in the \"Documents\" directory and its subdirectories\ndir \"C:\\Users\\YourUsername\\Documents\" /S\n```\n\n### Notes\n- The `dir` command is available in both the Command Prompt (CMD) and PowerShell. However, PowerShell has its own set of cmdlets (like `Get-ChildItem`) that offer more advanced functionality and object-oriented output.\n- If no path is specified, the command lists the contents of the current directory.\n- Paths containing spaces should be enclosed in double quotes.\n- The output formatting of `dir` can be customized further with environment variables, such as `DIRCMD`.",
+  "source": "gemini",
+  "is_windows_command": true
+}
