@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "timestamp": "2025-04-25_18-07-23",
+    "query_id": "query_2025-04-25_18-07-23",
+    "original_query": "How do I list files with .txt extension in current dir?",
+    "query_type": "windows_command",
+    "platform": "Windows"
+  },
+  "response": "### Command Overview\nThe `dir` command is used to display a list of files and subdirectories in a directory. It can be used to filter files based on their extension.\n\n### Syntax\n```cmd\ndir [drive:][path][filename] [/A[[:]attributes]] [/B] [/C] [/D] [/L] [/N]\n  [/O[[:]sortorder]] [/P] [/Q] [/R] [/S] [/T[[:]timefield]] [/W]\n  [/X] [/4]\n```\n\n### Key Options\n- `/A`: Displays files with specified attributes.\n- `/B`: Uses bare format (no heading information or summary).\n- `/S`: Displays files in specified directory and all subdirectories.\n\n### Examples\n```cmd\n# Example 1: List all files with .txt extension in the current directory.\ndir *.txt\n\n# Example 2: List all files with .txt extension in the current directory and all subdirectories.\ndir *.txt /S\n```\n\n### Notes\nThe `dir` command is a fundamental command in the Windows Command Prompt (CMD). While PowerShell also has a `dir` command (an alias for `Get-ChildItem`), the syntax and options are different. The examples shown here are specifically for CMD. Using PowerShell, you would use `Get-ChildItem *.txt`. Using forward slash \"/\" for options is standard practice in CMD.",
+  "source": "gemini",
+  "is_windows_command": true
+}
