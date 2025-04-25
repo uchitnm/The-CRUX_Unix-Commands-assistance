@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, render_template, send_file
 from app.core.agent import AgentSystem
 from app.core.data_manager import DataManager
 from app.core.embeddings import EmbeddingManager
+from app.core.windows_agent import WindowsCommandAgent
 import json
 import datetime
 import os
@@ -14,10 +15,14 @@ api = Blueprint('api', __name__)
 data_manager = DataManager()
 embedding_manager = EmbeddingManager()
 agent_system = None
+windows_agent = None
 
 def initialize_resources():
     """Initialize all resources needed for the application."""
-    global agent_system
+    global agent_system, windows_agent
+    
+    # Initialize Windows Command Agent
+    windows_agent = WindowsCommandAgent()
     
     # Load FAISS index or create new one
     if not embedding_manager.load_index():
@@ -56,6 +61,57 @@ def process_query():
         if not user_query:
             return jsonify({'error': 'No query provided'}), 400
         
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        
+        # Check if it's a Windows command query
+        if windows_agent.is_windows_query(user_query):
+            try:
+                response = windows_agent.process_query(user_query)
+                
+                if 'error' in response:
+                    return jsonify({'error': response['error']}), 500
+                
+                # Create detailed JSON result for Windows commands
+                json_result = {
+                    "metadata": {
+                        "timestamp": timestamp,
+                        "query_id": f"query_{timestamp}",
+                        "original_query": user_query,
+                        "query_type": "windows_command",
+                        "platform": "Windows"
+                    },
+                    "response": response['response'],
+                    "source": "gemini",
+                    "is_windows_command": True
+                }
+                
+                # Save to JSON file
+                results_dir = Path("query_results")
+                results_dir.mkdir(exist_ok=True)
+                json_file = results_dir / f"query_{timestamp}.json"
+                
+                with open(json_file, 'w') as f:
+                    json.dump(json_result, f, indent=2)
+                
+                # Save to text file for logging
+                with open("query_results.txt", "a") as f:
+                    f.write(f"[{timestamp}] Windows Query: {user_query} | Response: {response['response']}\n\n")
+                
+                # Return the response with metadata
+                response_data = {
+                    'response': response['response'],
+                    'query_id': f"query_{timestamp}",
+                    'json_file': f"query_{timestamp}.json",
+                    'is_windows_command': True,
+                    'platform': 'Windows'
+                }
+                
+                return jsonify(response_data)
+            except Exception as e:
+                print(f"Error in Windows command processing: {str(e)}")
+                return jsonify({'error': f"Error processing Windows command: {str(e)}"}), 500
+        
+        # If not a Windows query, proceed with the existing Unix command processing
         # Step 1: Analyze and optimize the query
         analysis = agent_system.query_analyzer_agent(
             user_query,
@@ -89,7 +145,6 @@ def process_query():
                 )
         
         # Create detailed JSON result
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         json_result = {
             "metadata": {
                 "timestamp": timestamp,

@@ -851,6 +851,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
     
     <script>
         const queryInput = document.getElementById('queryInput');
@@ -873,19 +874,32 @@
         };
 
         function markdownToHtml(markdown) {
+            if (!markdown) {
+                console.error('Received empty markdown');
+                return '<div class="error">No response received</div>';
+            }
+            
+            console.log('Raw markdown:', markdown);
             let html = markdown;
             
             // Convert headers
             html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
             
             // Convert code blocks with language
-            html = html.replace(/```bash\n([\s\S]*?)```/g, (match, code) => {
-                const highlighted = Prism.highlight(
-                    code.trim(),
-                    Prism.languages.bash,
-                    'bash'
-                );
-                return `<pre class="language-bash"><code class="language-bash">${highlighted}</code></pre>`;
+            html = html.replace(/```(bash|cmd)\n([\s\S]*?)```/g, (match, lang, code) => {
+                console.log('Processing code block:', { lang, code });
+                const language = lang === 'cmd' ? 'powershell' : 'bash';
+                try {
+                    const highlighted = Prism.highlight(
+                        code.trim(),
+                        Prism.languages[language],
+                        language
+                    );
+                    return `<div class="code-wrapper"><pre class="language-${language}"><code class="language-${language}">${highlighted}</code></pre></div>`;
+                } catch (error) {
+                    console.error('Error highlighting code:', error);
+                    return `<div class="code-wrapper"><pre class="language-${language}"><code class="language-${language}">${code.trim()}</code></pre></div>`;
+                }
             });
             
             // Convert inline code
@@ -905,6 +919,7 @@
                 return `<p>${p.trim()}</p>`;
             }).join('\n');
             
+            console.log('Processed HTML:', html);
             return html;
         }
 
@@ -956,16 +971,26 @@
                 });
 
                 const data = await response.json();
+                console.log('Response data:', data);
 
                 if (data.error) {
                     responseDiv.innerHTML = `<div class="error">${data.error}</div>`;
                 } else {
-                    responseDiv.innerHTML = markdownToHtml(data.response);
-                    analysisContent.textContent = JSON.stringify(data.analysis, null, 2);
-                    currentQueryId = data.query_id;
+                    // Process the response
+                    const processedHtml = markdownToHtml(data.response);
+                    responseDiv.innerHTML = processedHtml;
                     
-                    // Show analysis section after response
-                    analysisSection.style.display = 'block';
+                    // Handle analysis section
+                    if (data.analysis || data.is_windows_command) {
+                        analysisContent.textContent = JSON.stringify(data.is_windows_command ? {
+                            platform: 'Windows',
+                            source: 'Gemini AI',
+                            query_type: 'windows_command'
+                        } : data.analysis, null, 2);
+                        analysisSection.style.display = 'block';
+                    }
+                    
+                    currentQueryId = data.query_id;
                     showDownloadButton();
                 }
 
@@ -978,6 +1003,7 @@
                 }, 10);
                 
             } catch (error) {
+                console.error('Error processing query:', error);
                 responseDiv.innerHTML = `<div class="error">An error occurred: ${error.message}</div>`;
             } finally {
                 clearInterval(loadingInterval);
@@ -999,8 +1025,10 @@
         });
 
         function showDownloadButton() {
-            downloadBtn.style.display = 'flex';
-            setTimeout(() => downloadBtn.classList.add('visible'), 10);
+            downloadBtn.style.display = 'block';
+            setTimeout(() => {
+                downloadBtn.classList.add('visible');
+            }, 10);
         }
 
         // Enhanced welcome screen handling
