@@ -264,3 +264,50 @@ def get_command_chains(command):
         return jsonify({'error': 'No recommendations found for this command'}), 404
         
     return jsonify(recommendations)
+
+# Add a new route to explain a command
+@api.route('/api/explain', methods=['POST'])
+def explain_command():
+    """API endpoint to explain a given command and provide examples for Unix or Windows."""
+    try:
+        data = request.json
+        command = data.get('command', '')
+        if not command:
+            return jsonify({'error': 'No command provided'}), 400
+        # Determine if it's a Windows command
+        is_win = windows_agent.is_windows_query(command)
+        if is_win:
+            # Delegate to WindowsCommandAgent for strict Windows formatting
+            win_resp = windows_agent.process_query(command)
+            if 'error' in win_resp:
+                return jsonify({'error': win_resp['error']}), 500
+            explanation = win_resp.get('response', '')
+            platform = 'Windows'
+        else:
+            # Use the Unix explain command agent
+            explanation = agent_system.explain_command_agent(command, data_manager)
+            platform = 'Unix'
+        # Save to JSON file
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        results_dir = Path("query_results")
+        results_dir.mkdir(exist_ok=True)
+        result = {
+            "metadata": {
+                "timestamp": timestamp,
+                "command": command,
+                "query_type": "explain_command",
+                "platform": platform
+            },
+            "explanation": explanation
+        }
+        json_file = results_dir / f"explain_{timestamp}.json"
+        with open(json_file, 'w') as f:
+            json.dump(result, f, indent=2)
+        # Log to text file
+        with open("query_results.txt", "a") as f:
+            f.write(f"[{timestamp}] Explain ({platform}): {command} | Explanation: {explanation}\n\n")
+        # Return explanation to client with platform
+        return jsonify({'explanation': explanation, 'command': command, 'platform': platform})
+    except Exception as e:
+        print(f"Error processing explain command: {str(e)}")
+        return jsonify({'error': f"Error explaining command: {str(e)}"}), 500

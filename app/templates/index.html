@@ -768,6 +768,7 @@
             <input type="text" id="queryInput" class="query-input" 
                    placeholder="E.g., how to find files modified in the last 24 hours">
             <button id="submitButton" class="button">Ask</button>
+            <button id="explainButton" class="button">Explain</button>
         </div>
 
         <div id="loading" class="loading" style="display: none;">
@@ -856,6 +857,7 @@
     <script>
         const queryInput = document.getElementById('queryInput');
         const submitButton = document.getElementById('submitButton');
+        const explainButton = document.getElementById('explainButton');
         const loading = document.getElementById('loading');
         const responseDiv = document.getElementById('response');
         const analysisSection = document.getElementById('analysisSection');
@@ -1016,6 +1018,7 @@
         queryInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSubmit();
         });
+        explainButton.addEventListener('click', handleExplain);
 
         // Download button
         downloadBtn.addEventListener('click', async () => {
@@ -1106,6 +1109,43 @@
 
         // Also add copy buttons to any existing code blocks
         document.addEventListener('DOMContentLoaded', createCopyButtons);
+
+        // Handler for Explain button
+        async function handleExplain() {
+            const command = queryInput.value.trim();
+            if (!command) {
+                showError('Please enter a command first');
+                return;
+            }
+            welcomeScreen.classList.add('fade-out');
+            loading.style.display = 'block';
+            responseDiv.classList.remove('visible');
+            responseDiv.innerHTML = '';
+            analysisSection.style.display = 'none';
+            downloadBtn.style.display = 'none';
+            const loadingInterval = updateLoadingText();
+            try {
+                const resp = await fetch('/api/explain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command })
+                });
+                const data = await resp.json();
+                if (data.error) {
+                    responseDiv.innerHTML = `<div class="error">${data.error}</div>`;
+                } else {
+                    const processedHtml = markdownToHtml(data.explanation);
+                    responseDiv.innerHTML = processedHtml;
+                }
+                Prism.highlightAll();
+                setTimeout(() => { responseDiv.classList.add('visible'); }, 10);
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="error">An error occurred: ${error.message}</div>`;
+            } finally {
+                clearInterval(loadingInterval);
+                loading.style.display = 'none';
+            }
+        }
     </script>
 
 </body>

@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "timestamp": "2025-04-25_23-43-45",
+    "query_id": "query_2025-04-25_23-43-45",
+    "original_query": "del C:\\temp\\*.tmp",
+    "query_type": "windows_command",
+    "platform": "Windows"
+  },
+  "response": "### Command Overview\nThe `del` command (or `erase`) deletes one or more files. It's a fundamental command for file management in the Windows Command Prompt. Wildcards can be used to delete multiple files matching a pattern.\n\n### Syntax\n```cmd\ndel [/p] [/f] [/s] [/q] [/a:[attributes]] [filenames]\nerase [/p] [/f] [/s] [/q] [/a:[attributes]] [filenames]\n```\n\n### Key Options\n- `/p`: Prompts for confirmation before deleting each file.\n- `/f`: Forces deletion of read-only files.\n- `/s`: Deletes specified files from all subdirectories.\n- `/q`: Quiet mode.  Does not prompt on global wildcards such as `*.*`.\n- `/a:[attributes]`: Deletes files based on attributes. Examples: `h` (hidden), `r` (read-only), `s` (system), `a` (archive).  Precede with `-` to negate an attribute (e.g., `-h` to not delete hidden files).\n\n### Examples\n```cmd\n# Example 1: Delete all .tmp files in C:\\temp without confirmation.\ndel C:\\temp\\*.tmp /q\n\n# Example 2: Delete all read-only .txt files in the current directory and subdirectories, forcing deletion.\ndel *.txt /f /s /a:r\n```\n\n### Notes\n*   Be extremely careful when using wildcards with the `del` command, especially the `/s` option.  Double-check your command before executing to avoid unintended data loss.\n*   Deleted files are *not* sent to the Recycle Bin when deleted via the command prompt. They are permanently removed unless specialized data recovery software is used.\n*   The `del` and `erase` commands are functionally identical.\n*   While the core functionality is the same, PowerShell has its own `Remove-Item` cmdlet which offers more features and integrates better with the PowerShell environment.  Avoid confusion between `del` (CMD) and `Remove-Item` (PowerShell). `Remove-Item` in PowerShell will send the files to the recycle bin by default, which is a crucial difference from `del`.",
+  "source": "gemini",
+  "is_windows_command": true
+}

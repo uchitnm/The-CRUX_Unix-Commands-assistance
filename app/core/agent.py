@@ -366,3 +366,67 @@ Remember to:
             response_text = "### Command Overview\n" + response_text
         
         return response_text
+
+    def explain_command_agent(self, command_str, data_manager):
+        """Agent to explain a given command and provide additional examples."""
+        # Retrieve existing command info
+        row = data_manager.commands[data_manager.commands['Command'] == command_str]
+        description = row.iloc[0].get('DESCRIPTION', '') if not row.empty else ''
+        examples = row.iloc[0].get('EXAMPLES', '') if not row.empty else ''
+        options = row.iloc[0].get('OPTIONS', '') if not row.empty else ''
+
+        # Build a prompt guiding strict markdown formatting for Unix command explanation
+        prompt = f"""
+You are a UNIX Command Assistant. A user provided the command: `{command_str}`.
+
+Format your response using strict markdown with the following sections:
+
+### Command Overview
+Provide a concise description of what `{command_str}` does, referencing:
+{description or 'N/A'}
+
+### Syntax
+```bash
+{command_str} [options] [arguments]
+```
+
+### Key Options
+List and describe the most important options. Reference existing options:
+{options or 'N/A'}
+
+### Examples
+Provide at least two additional examples demonstrating usage:
+```bash
+# Existing examples:
+{examples or 'N/A'}
+
+# Your examples:
+{command_str} --help
+{command_str} -V
+```
+
+### Notes
+Mention any important considerations, warnings, or best practices.
+
+Remember to:
+1. Use `###` for section headers.
+2. Wrap commands in single backticks when inline.
+3. Use triple backticks with `bash` for code blocks.
+4. Present options as bullet points.
+5. Keep language clear and concise.
+"""
+        contents = [
+            types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=prompt)],
+            ),
+        ]
+        response = self.client.models.generate_content(
+            model=settings.GEMINI_MODEL,
+            contents=contents,
+            config=settings.GEMINI_CONFIG,
+        )
+        response_text = response.text.strip()
+        if not response_text.startswith("###"):
+            response_text = "### Command Explanation\n" + response_text
+        return response_text

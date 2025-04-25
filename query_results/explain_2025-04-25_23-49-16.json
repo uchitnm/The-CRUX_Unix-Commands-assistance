@@ -1,0 +1,9 @@
+{
+  "metadata": {
+    "timestamp": "2025-04-25_23-49-16",
+    "command": "del C:\\temp\\*.tmp",
+    "query_type": "explain_command",
+    "platform": "Windows"
+  },
+  "explanation": "### Command Overview\nThe `del` command deletes one or more files. It's a fundamental command for removing files from the command line. Wildcards like `*` and `?` can be used to delete multiple files matching a pattern.\n\n### Syntax\n```cmd\ndel [/p] [/f] [/s] [/q] [/a[:attributes]] [filenames]\nerase [/p] [/f] [/s] [/q] [/a[:attributes]] [filenames]\n```\n\n### Key Options\n- `/p`: Prompts for confirmation before deleting each file.\n- `/f`: Forces deletion of read-only files.\n- `/s`: Deletes specified files from all subdirectories.\n- `/q`: Quiet mode; does not prompt on global wildcards.\n- `/a[:attributes]`: Deletes files with specified attributes.  Attributes include:  `R` (Read-only), `H` (Hidden), `S` (System), `A` (Archive).  A minus sign (-) prefixes attributes to remove those attributes.\n\n### Examples\n```cmd\n# Example 1: Delete all .tmp files in C:\\temp without prompting\ndel C:\\temp\\*.tmp /q\n\n# Example 2: Force delete read-only .txt files in C:\\docs and all subdirectories, prompting for each file\ndel C:\\docs\\*.txt /f /s /p\n```\n\n### Notes\n- The `del` command permanently deletes files from the command line.  Deleted files are *not* sent to the Recycle Bin. Be cautious when using wildcards.\n- The `erase` command is an alias for the `del` command and functions identically.\n- While `del` is a command prompt (CMD) command, PowerShell has a `Remove-Item` cmdlet that serves a similar purpose. The syntax differs significantly between the two environments.\n- Using `/q` with a global wildcard (e.g., `*.*`) will suppress the confirmation prompt that normally appears. This can lead to accidental deletion of large amounts of data, so use with caution."
+}
